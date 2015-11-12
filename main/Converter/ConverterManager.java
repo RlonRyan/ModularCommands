@@ -5,7 +5,11 @@
  */
 package Converter;
 
+import Command.CommandParameter;
 import Converter.Default.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,29 +17,46 @@ import java.util.Map;
  *
  * @author RlonRyan
  */
-public class ConverterManager {
+public final class ConverterManager {
 
-    private static final Map<String, IConverter> converters;
+    private static final Map<String, Method> converters;
 
     static {
         converters = new HashMap<>();
-        converters.put("integer", new IntegerConverter());
-        converters.put("double", new DoubleConverter());
-        converters.put("float", new FloatConverter());
-        converters.put("string", new StringConverter());
-        converters.put("", new StringConverter());
+        addConverters(StaticConverters.class);
     }
 
     public static boolean hasConverterFor(String type) {
         return converters.containsKey(type.toLowerCase());
     }
 
-    public static IConverter getConverterFor(String type) {
-        return converters.get(type.toLowerCase());
+    public static Object convert(CommandParameter parameter, String value) throws ConverterException {
+        try {
+            Method converter = converters.get(parameter.type().toLowerCase());
+            if (converter == null) {
+                throw new ConverterMissingExeption(value, parameter.type());
+            }
+            Object result = converter.invoke(null, parameter.tag(), value);
+            return result == null ? converter.invoke(null, parameter.tag(), parameter.defaultValue()) : result;
+        } catch (InvocationTargetException e) {
+            if (e.getCause() instanceof ConversionException) {
+                throw (ConversionException) e.getCause();
+            } else {
+                e.printStackTrace();
+                throw new ConverterException(e.getLocalizedMessage());
+            }
+        } catch (IllegalAccessException | IllegalArgumentException exc) {
+            exc.printStackTrace();
+            throw new ConverterMissingExeption(value, parameter.type().toLowerCase());
+        }
     }
 
-    public static IConverter addConverterFor(String type, IConverter converter) {
-        return converters.putIfAbsent(type.toLowerCase(), converter);
+    public static void addConverters(Class converterClass) {
+        for (Method m : StaticConverters.class.getMethods()) {
+            if (Modifier.isStatic(m.getModifiers()) && m.isAnnotationPresent(Converter.class)) {
+                converters.putIfAbsent(m.getAnnotation(Converter.class).value().toLowerCase(), m);
+            }
+        }
     }
 
 }

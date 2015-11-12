@@ -5,7 +5,6 @@
  */
 package Command;
 
-import Converter.ConverterExeption;
 import Converter.ConverterManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -34,15 +33,15 @@ public final class CommandManager {
         return ROOT_COMMAND_NODE.subNodes.get(identifier);
     }
 
-    public static void execute(String line) {
-        execute(line.split("\\s+"));
+    public static String execute(String line) {
+        return execute(line.split("\\s+"));
     }
 
-    public static void execute(String... args) {
-        execute(new ArrayDeque<>(Arrays.asList(args)));
+    public static String execute(String... args) {
+        return execute(new ArrayDeque<>(Arrays.asList(args)));
     }
 
-    public static void execute(ArrayDeque<String> args) {
+    public static String execute(ArrayDeque<String> args) {
         CommandNode node = ROOT_COMMAND_NODE.getNearest(args);
         if (node.command != null) {
             //System.out.printf("Commmand Node: %1$s%n - Args: %2$s%n", node.identifier, args.toString());\
@@ -57,22 +56,24 @@ public final class CommandManager {
             try {
                 Object[] objargs = mapify(params, args.toString().replaceAll(",", ""));
                 //System.out.println(Arrays.toString(objargs));
-                node.command.invoke(null, objargs);
-            } catch (CommandException | ConverterExeption ce) {
-                Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.WARNING, ce.getMessage());
+                Object result = node.command.invoke(null, objargs);
+                return result == null ? null : result.toString();
+            } catch (CommandException ce) {
+                return ce.getMessage();
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                System.out.println("Shoot.");
-                ex.printStackTrace();
-            } catch (NullPointerException except) {
-                System.out.println("This is really bad...");
-                except.printStackTrace();
+                Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, ex.getLocalizedMessage());
+                return ex.getLocalizedMessage();
+            } catch (NullPointerException ex) {
+                Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, ex.getLocalizedMessage());
+                return "Null pointer!";
             }
         } else {
             System.out.println(node.getHelp());
+            return null;
         }
     }
 
-    public static final Object[] mapify(Deque<CommandParameter> argset, String args) throws CommandException, ConverterExeption {
+    public static final Object[] mapify(Deque<CommandParameter> argset, String args) throws CommandException {
         Object[] objargs = new Object[argset.size()];
         int index = 0;
         for (CommandParameter param : argset) {
@@ -85,7 +86,8 @@ public final class CommandManager {
             int end = args.indexOf(delim, loc);
             end = end < loc ? args.length() - 1 : end;
             end = end < 0 ? 0 : end;
-            objargs[index++] = ConverterManager.getConverterFor(param.type()).convert(args.substring(loc, end));
+            //System.out.println(param.toString());
+            objargs[index++] = ConverterManager.convert(param, args.substring(loc, end));
         }
         return objargs;
     }

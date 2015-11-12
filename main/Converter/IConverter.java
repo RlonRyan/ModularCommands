@@ -12,6 +12,6 @@ package Converter;
  */
 public interface IConverter<T> {
 
-    T convert(String parameter) throws ConverterExeption;
+    T convert(String tag, String parameter) throws ConverterException;
 
 }
