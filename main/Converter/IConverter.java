@@ -3,20 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Command;
-
-import java.util.ArrayDeque;
+package Converter;
 
 /**
  *
  * @author RlonRyan
+ * @param <T> The type to convert to.
  */
-public interface ICommand {
+public interface IConverter<T> {
 
-    String getIdentifier();
-
-    String getUsage();
-
-    void execute(ArrayDeque<String> args);
+    T convert(String parameter) throws ConverterExeption;
 
 }

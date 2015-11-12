@@ -1,7 +1,7 @@
 
 import Command.CommandManager;
-import Command.Default.CommandQuit;
-import Command.Print.CommandPrintStars;
+import Command.Default.*;
+import Command.Print.*;
 import java.util.Scanner;
 
 /*
@@ -16,11 +16,9 @@ import java.util.Scanner;
 public class CommandTerminal {
 
     static {
-
-        CommandManager.addCommandSet("print");
-        CommandManager.getCommandSet("print").registerCommand(new CommandPrintStars());
-        CommandManager.getCommandSet("").registerCommand(new CommandQuit());
-
+        CommandManager.getCommandSet("").registerCommand(CommandQuit.class);
+        CommandManager.getCommandSet("print").registerCommand(CommandPrint.class);
+        CommandManager.getCommandSet("util").registerCommand(CommandUtil.class);
     }
 
     public static void main(String[] args) {

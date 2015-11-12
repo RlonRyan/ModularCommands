@@ -5,28 +5,24 @@
  */
 package Command.Default;
 
-import Command.ICommand;
-import java.util.ArrayDeque;
+import Command.CommandParameter;
+import Command.Command;
 
 /**
  *
  * @author RlonRyan
  */
-public class CommandQuit implements ICommand {
+public class CommandQuit {
 
-    @Override
-    public String getIdentifier() {
-        return "quit";
-    }
-
-    @Override
-    public String getUsage() {
-        return "[No arguments]";
-    }
-
-    @Override
-    public void execute(ArrayDeque<String> args) {
+    @Command("quit")
+    public static void execute(@CommandParameter(tag = "m", name = "message", type = "String") String message) {
+        System.out.printf("Quit: %1$s%n", message);
+        //beep();
         System.exit(0);
     }
 
+    @Command("beep")
+    public static void beep() {
+        java.awt.Toolkit.getDefaultToolkit().beep();
+    }
 }

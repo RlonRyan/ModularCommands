@@ -5,8 +5,13 @@
  */
 package Command;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -14,9 +19,10 @@ import java.util.HashMap;
  */
 public class CommandNode {
 
+    public final String parentIdent;
     public final String identifier;
     public final CommandNode parent;
-    public final ICommand command;
+    public final Method command;
 
     final HashMap<String, CommandNode> subNodes;
 
@@ -24,19 +30,21 @@ public class CommandNode {
         this(identifier, null, null);
     }
 
-    public CommandNode(String identifier, CommandNode parent) {
+    protected CommandNode(String identifier, CommandNode parent) {
         this(identifier, parent, null);
     }
 
-    public CommandNode(String identifier, CommandNode parent, ICommand command) {
+    protected CommandNode(String identifier, CommandNode parent, Method command) {
+        this.parentIdent = (parent == null ? "" : parent.getFullIdentifier());
         this.identifier = identifier.toLowerCase();
         this.parent = parent;
         this.subNodes = new HashMap<>();
         this.command = command;
+        //Logger.getGlobal().log(Level.INFO, "Registering {0} with ident: {1}", new Object[]{this.command == null ? "command node" : "command", this.getFullIdentifier()});
     }
 
     public String getFullIdentifier() {
-        return (this.parent == null ? "" : this.parent.getFullIdentifier()) + " " + this.identifier;
+        return this.parent == null ? this.identifier : (this.parentIdent + "." + ((this.identifier.length() < 1) ? "default" : this.identifier));
     }
 
     public CommandNode getNearest(ArrayDeque<String> args) {
@@ -46,14 +54,35 @@ public class CommandNode {
             return this;
         }
 
-        CommandNode node = this.subNodes.get(args.pop());
+        CommandNode node = this.subNodes.get(args.peek());
 
-        return node == null ? this : node.getNearest(args);
+        if (node == null) {
+            node = this.subNodes.get("");
+        } else {
+            args.pop();
+        }
+
+        if (node == null) {
+            node = this;
+        } else {
+            node = node.getNearest(args);
+        }
+
+        return node;
 
     }
 
-    public boolean registerCommand(ICommand command) {
-        return subNodes.putIfAbsent(command.getIdentifier().toLowerCase(), new CommandNode(identifier, this, command)) == null;
+    public void registerCommand(Class command) {
+        for (Method m : command.getDeclaredMethods()) {
+            if (m.getAnnotation(Command.class) != null) {
+                if (Modifier.isStatic(m.getModifiers())) {
+                    String tag = m.getAnnotation(Command.class).value();
+                    subNodes.putIfAbsent(tag, new CommandNode(tag, this, m));
+                } else {
+                    Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, "Annotated method: {0} is not static!", m.getName());
+                }
+            }
+        }
     }
 
     public boolean registerSubset(String identifier) {
@@ -68,7 +97,7 @@ public class CommandNode {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Help for ").append(this.identifier).append(":").append('\n');
+        sb.append("Help for ").append(this.identifier.length() > 0 ? this.identifier : "ROOT").append(":").append('\n');
 
         if (subNodes.isEmpty()) {
             sb.append("No help to give...");
@@ -78,12 +107,19 @@ public class CommandNode {
             if (node.command == null) {
                 sb.append(" - Subgroup: ").append(node.identifier).append('\n');
             } else {
-                sb.append(" - Subcommand: ").append(node.command.getIdentifier()).append('\n');
-                sb.append("   - Usage: ").append(node.command.getUsage()).append('\n');
+                sb.append(" - Subcommand: ").append(node.command.getAnnotation(Command.class).value()).append('\n');
+                sb.append("   - Usage: ").append(node.command.getAnnotation(Command.class).value()).append(' ');
+                for (Annotation annos[] : node.command.getParameterAnnotations()) {
+                    for (Annotation param : annos) {
+                        if (param instanceof CommandParameter) {
+                            sb.append(((CommandParameter) param).tag()).append(':');
+                            sb.append(((CommandParameter) param).type()).append(' ');
+                        }
+                    }
+                }
+                sb.append('\n');
             }
         }
-
-        sb.append("");
 
         return sb.toString();
     }
