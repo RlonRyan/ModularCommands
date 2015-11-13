@@ -3,28 +3,30 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Command;
+package permissions.exceptions;
+
+import commands.exception.CommandException;
 
 /**
  *
  * @author RlonRyan
  */
-public class CommandException extends Exception {
+public class PermissionException extends CommandException {
 
     /**
-     * Creates a new instance of <code>CommandException</code> without detail
+     * Creates a new instance of <code>PermissionException</code> without detail
      * message.
      */
-    public CommandException() {
+    public PermissionException() {
     }
 
     /**
-     * Constructs an instance of <code>CommandException</code> with the
+     * Constructs an instance of <code>PermissionException</code> with the
      * specified detail message.
      *
      * @param msg the detail message.
      */
-    public CommandException(String msg) {
+    public PermissionException(String msg) {
         super(msg);
     }
 }

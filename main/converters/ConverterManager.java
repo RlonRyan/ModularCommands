@@ -3,15 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Converter;
+package converters;
 
-import Command.CommandParameter;
-import Converter.Default.*;
+import converters.exceptions.ConversionException;
+import converters.exceptions.ConverterException;
+import converters.exceptions.ConverterMissingExeption;
+import commands.CommandParameter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -52,9 +56,13 @@ public final class ConverterManager {
     }
 
     public static void addConverters(Class converterClass) {
-        for (Method m : StaticConverters.class.getMethods()) {
-            if (Modifier.isStatic(m.getModifiers()) && m.isAnnotationPresent(Converter.class)) {
-                converters.putIfAbsent(m.getAnnotation(Converter.class).value().toLowerCase(), m);
+        for (Method m : converterClass.getMethods()) {
+            if (m.isAnnotationPresent(Converter.class)) {
+                if (Modifier.isStatic(m.getModifiers()) && Modifier.isPublic(m.getModifiers())) {
+                    converters.putIfAbsent(m.getAnnotation(Converter.class).value().toLowerCase(), m);
+                } else {
+                    Logger.getLogger(ConverterManager.class.getCanonicalName()).log(Level.SEVERE, "Converter Method: {1}.{0} is not public static!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
+                }
             }
         }
     }

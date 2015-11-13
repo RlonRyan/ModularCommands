@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Command;
+package commands;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -12,6 +12,7 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import permissions.PermissionManager;
 
 /**
  *
@@ -75,11 +76,11 @@ public class CommandNode {
     public void registerCommand(Class command) {
         for (Method m : command.getDeclaredMethods()) {
             if (m.getAnnotation(Command.class) != null) {
-                if (Modifier.isStatic(m.getModifiers())) {
+                if (Modifier.isStatic(m.getModifiers()) && Modifier.isPublic(m.getModifiers())) {
                     String tag = m.getAnnotation(Command.class).value();
                     subNodes.putIfAbsent(tag, new CommandNode(tag, this, m));
                 } else {
-                    Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, "Annotated method: {0} is not static!", m.getName());
+                    Logger.getLogger(PermissionManager.class.getCanonicalName()).log(Level.SEVERE, "Command Method: {1}.{0} is not public static!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
                 }
             }
         }
@@ -103,7 +104,7 @@ public class CommandNode {
             sb.append("No help to give...");
         }
 
-        for (CommandNode node : this.subNodes.values()) {
+        for (CommandNode node : (this.identifier.length() < 1 ? this.parent.subNodes.values() : this.subNodes.values())) {
             if (node.command == null) {
                 sb.append(" - Subgroup: ").append(node.identifier).append('\n');
             } else {

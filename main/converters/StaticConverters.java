@@ -3,10 +3,10 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Converter.Default;
+package converters;
 
-import Converter.Converter;
-import Converter.ConversionException;
+import converters.Converter;
+import converters.exceptions.ConversionException;
 
 /**
  *
@@ -33,7 +33,7 @@ public class StaticConverters {
     }
 
     @Converter("float")
-    public double convertFloat(String tag, String parameter) throws ConversionException {
+    public static double convertFloat(String tag, String parameter) throws ConversionException {
         try {
             return Float.parseFloat(parameter);
         } catch (NumberFormatException ne) {

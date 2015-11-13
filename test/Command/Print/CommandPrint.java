@@ -5,8 +5,8 @@
  */
 package Command.Print;
 
-import Command.CommandParameter;
-import Command.Command;
+import commands.CommandParameter;
+import commands.Command;
 
 /**
  *
@@ -20,15 +20,15 @@ public class CommandPrint {
     }
 
     @Command("stars")
-    public static void printStars(@CommandParameter(tag = "n", name = "number", type = "Integer", defaultValue = "10") Integer n) {
-        for (; n > -1; n--) {
+    public static void printStars(@CommandParameter(tag = "n", name = "number", type = "Integer", defaultValue = "10") int n) {
+        for (; n > 0; n--) {
             System.out.print("*");
         }
         System.out.println();
     }
 
     @Command("pyramid")
-    public static void printPyramid(@CommandParameter(tag = "n", name = "number", type = "Integer", defaultValue = "10") Integer n) {
+    public static void printPyramid(@CommandParameter(tag = "n", name = "number", type = "Integer", defaultValue = "10") int n) {
         for (int i = 0; 2 * i < n; i++) {
             for (int ii = 0; ii < i; ii++) {
                 System.out.print("*");
