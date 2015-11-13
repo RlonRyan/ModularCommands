@@ -16,16 +16,17 @@ import java.util.Scanner;
 public class CommandTerminal {
 
     static {
-        CommandManager.getCommandSet("").registerCommand(CommandUtil.class);
-        CommandManager.getCommandSet("print").registerCommand(CommandPrint.class);
+        CommandManager.getCommandSet("ct").registerCommand(CommandUtil.class);
+        CommandManager.getCommandSet("ct").registerSubset("print");
+        CommandManager.getCommandSet("ct").getNearest("print").registerCommand(CommandPrint.class);
     }
 
     public static void main(String[] args) {
         final Scanner in = new Scanner(System.in);
         while (true) {
-            String result = CommandManager.execute("root", in.nextLine());
+            String result = CommandManager.execute("root", "ct", in.nextLine(), false);
             if (result != null) {
-                System.out.printf("Issue: %1$s%n", result);
+                System.out.printf("Result: %1$s%n", result);
             }
         }
     }

@@ -22,9 +22,9 @@ public @interface CommandParameter {
 
     String name();
 
-    String type() default "String";
+    String description();
 
-    String description() default "";
+    String type() default "String";
 
     String defaultValue() default "";
 

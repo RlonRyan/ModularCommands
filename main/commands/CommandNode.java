@@ -5,14 +5,16 @@
  */
 package commands;
 
+import static commands.CommandManager.MARKER_CHAR;
+import commands.validators.CommandValidator;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import permissions.PermissionManager;
+import java.util.List;
 
 /**
  *
@@ -37,7 +39,7 @@ public class CommandNode {
 
     protected CommandNode(String identifier, CommandNode parent, Method command) {
         this.parentIdent = (parent == null ? "" : parent.getFullIdentifier());
-        this.identifier = identifier.toLowerCase();
+        this.identifier = identifier.isEmpty() ? "default" : identifier.toLowerCase();
         this.parent = parent;
         this.subNodes = new HashMap<>();
         this.command = command;
@@ -45,27 +47,28 @@ public class CommandNode {
     }
 
     public String getFullIdentifier() {
-        return this.parent == null ? this.identifier : (this.parentIdent + "." + ((this.identifier.length() < 1) ? "default" : this.identifier));
+        return this.parent == null ? this.identifier : (this.parentIdent + "." + this.identifier);
+    }
+
+    public CommandNode getNearest(String ident) {
+        if (ident.isEmpty()) {
+            return this;
+        } else if (this.subNodes.containsKey(ident)) {
+            return this.subNodes.get(ident);
+        } else {
+            return getNearest(new ArrayDeque<>(Arrays.asList(ident.split("\\s+"))));
+        }
     }
 
     public CommandNode getNearest(ArrayDeque<String> args) {
 
         //System.out.println(this.getFullIdentifier() + " args: " + args.peek());
-        if (this.subNodes.isEmpty() || args.peek() == null) {
-            return this;
-        }
-
         CommandNode node = this.subNodes.get(args.peek());
 
         if (node == null) {
-            node = this.subNodes.get("");
+            node = this.subNodes.getOrDefault("default", this);
         } else {
             args.pop();
-        }
-
-        if (node == null) {
-            node = this;
-        } else {
             node = node.getNearest(args);
         }
 
@@ -75,13 +78,10 @@ public class CommandNode {
 
     public void registerCommand(Class command) {
         for (Method m : command.getDeclaredMethods()) {
-            if (m.getAnnotation(Command.class) != null) {
-                if (Modifier.isStatic(m.getModifiers()) && Modifier.isPublic(m.getModifiers())) {
-                    String tag = m.getAnnotation(Command.class).value();
-                    subNodes.putIfAbsent(tag, new CommandNode(tag, this, m));
-                } else {
-                    Logger.getLogger(PermissionManager.class.getCanonicalName()).log(Level.SEVERE, "Command Method: {1}.{0} is not public static!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
-                }
+            if (m.getAnnotation(Command.class) != null && CommandValidator.validate(m)) {
+                String name = m.getAnnotation(Command.class).value();
+                name = name.isEmpty() ? "default" : name;
+                subNodes.putIfAbsent(name, new CommandNode(name, this, m));
             }
         }
     }
@@ -94,34 +94,69 @@ public class CommandNode {
         return subNodes.remove(identifier.toLowerCase()) != null;
     }
 
+    public List<String> suggestCompletion(ArrayDeque<String> args) {
+        //System.out.println(this.identifier);
+        //System.out.println(args);
+        List<String> suggestions = new ArrayList<>();
+        String toComplete = args.pollLast();
+        toComplete = (toComplete == null) ? "" : toComplete.toLowerCase();
+        //System.out.println('\"' + toComplete + '\"');
+
+        if (toComplete.isEmpty()) {
+            suggestions.addAll(this.subNodes.keySet());
+        } else if (args.isEmpty()) {
+            for (String key : this.subNodes.keySet()) {
+                if (key.startsWith(toComplete)) {
+                    suggestions.add(key);
+                }
+            }
+        }
+
+        if (this.command != null) {
+            for (Parameter p : this.command.getParameters()) {
+                toComplete = (!toComplete.isEmpty()) && toComplete.charAt(0) == MARKER_CHAR ? toComplete.substring(1) : toComplete;
+                if ((toComplete.length() < 2) || p.getAnnotation(CommandParameter.class).tag().startsWith(toComplete.substring(1))) {
+                    suggestions.add(MARKER_CHAR + p.getAnnotation(CommandParameter.class).tag());
+                }
+            }
+        }
+
+        return suggestions;
+    }
+
     public String getHelp() {
 
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Help for ").append(this.identifier.length() > 0 ? this.identifier : "ROOT").append(":").append('\n');
-
-        if (subNodes.isEmpty()) {
-            sb.append("No help to give...");
+        if (!this.identifier.isEmpty()) {
+            sb.append("Help for ").append(this.identifier).append(":\n");
         }
 
-        for (CommandNode node : (this.identifier.length() < 1 ? this.parent.subNodes.values() : this.subNodes.values())) {
-            if (node.command == null) {
-                sb.append(" - Subgroup: ").append(node.identifier).append('\n');
-            } else {
-                sb.append(" - Subcommand: ").append(node.command.getAnnotation(Command.class).value()).append('\n');
-                sb.append("   - Usage: ").append(node.command.getAnnotation(Command.class).value()).append(' ');
-                for (Annotation annos[] : node.command.getParameterAnnotations()) {
-                    for (Annotation param : annos) {
-                        if (param instanceof CommandParameter) {
-                            sb.append(((CommandParameter) param).tag()).append(':');
-                            sb.append(((CommandParameter) param).type()).append(' ');
+        if (this.subNodes.isEmpty()) {
+            if (!this.identifier.isEmpty()) {
+                sb.append(" - No help to give.").append('\n');
+            }
+        } else {
+            for (CommandNode node : this.subNodes.values()) {
+                if (node.identifier.isEmpty()) {
+                    sb.append(node.getHelp());
+                } else if (node.command == null) {
+                    sb.append(" - Subgroup: ").append(node.identifier).append('\n');
+                } else {
+                    sb.append(" - Subcommand: ").append(node.command.getAnnotation(Command.class).value()).append('\n');
+                    sb.append("   - Usage: ").append(node.command.getAnnotation(Command.class).value()).append(' ');
+                    for (Annotation annos[] : node.command.getParameterAnnotations()) {
+                        for (Annotation param : annos) {
+                            if (param instanceof CommandParameter) {
+                                sb.append(((CommandParameter) param).tag()).append(':');
+                                sb.append(((CommandParameter) param).type()).append(' ');
+                            }
                         }
                     }
+                    sb.append('\n');
                 }
-                sb.append('\n');
             }
         }
-
         return sb.toString();
     }
 

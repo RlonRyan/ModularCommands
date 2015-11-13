@@ -5,12 +5,6 @@
  */
 package permissions;
 
-import commands.CommandParameter;
-import converters.Converter;
-import converters.StaticConverters;
-import converters.exceptions.ConversionException;
-import converters.exceptions.ConverterException;
-import converters.exceptions.ConverterMissingExeption;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -52,7 +46,7 @@ public class PermissionManager {
             return (boolean) m.invoke(null, perm, user) ? 0 : 1;
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException exc) {
             exc.printStackTrace();
-            throw new PermissionException(exc.getLocalizedMessage());
+            throw new PermissionException("Permission Handler Error", user, perm, exc.getLocalizedMessage());
         }
     }
 

@@ -13,20 +13,14 @@ import commands.exception.CommandException;
  */
 public class PermissionException extends CommandException {
 
-    /**
-     * Creates a new instance of <code>PermissionException</code> without detail
-     * message.
-     */
-    public PermissionException() {
-    }
+    public static final String MESSAGE_FORMAT = "Command Permission Issue:%n\t- User: %1$s%n\t- Permission: %2$s%n\t- Reason: %3$s";
 
     /**
      * Constructs an instance of <code>PermissionException</code> with the
      * specified detail message.
      *
-     * @param msg the detail message.
      */
-    public PermissionException(String msg) {
-        super(msg);
+    public PermissionException(String issue, String user, String permission, String reason) {
+        super(String.format(MESSAGE_FORMAT, issue, user, permission, reason));
     }
 }

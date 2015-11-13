@@ -14,13 +14,13 @@ import commands.Command;
  */
 public class CommandPrint {
 
-    @Command("")
-    public static void print(@CommandParameter(tag = "m", name = "message", type = "String") String message) {
+    @Command("message")
+    public static void print(@CommandParameter(tag = "m", name = "message", description = "The message to print.", type = "String") String message) {
         System.out.println(message);
     }
 
     @Command("stars")
-    public static void printStars(@CommandParameter(tag = "n", name = "number", type = "Integer", defaultValue = "10") int n) {
+    public static void printStars(@CommandParameter(tag = "n", name = "number", description = "The number of stars to print.", type = "Integer", defaultValue = "10") int n) {
         for (; n > 0; n--) {
             System.out.print("*");
         }
@@ -28,7 +28,7 @@ public class CommandPrint {
     }
 
     @Command("pyramid")
-    public static void printPyramid(@CommandParameter(tag = "n", name = "number", type = "Integer", defaultValue = "10") int n) {
+    public static void printPyramid(@CommandParameter(tag = "n", name = "number", description = "The number of stars to print.", type = "Integer", defaultValue = "10") int n) {
         for (int i = 0; 2 * i < n; i++) {
             for (int ii = 0; ii < i; ii++) {
                 System.out.print("*");
