@@ -10,14 +10,11 @@ import commands.exception.CommandMissingParameterException;
 import converters.ConverterManager;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,6 +38,10 @@ public final class CommandManager {
     static {
         assert MARKER_CHAR != ESCAPE_CHAR;
         // Otherwise we have some pretty big issues...
+    }
+
+    public static boolean hasCommandSet(String identifier) {
+        return ROOT_COMMAND_NODE.subNodes.containsKey(identifier.toLowerCase());
     }
 
     public static CommandNode getCommandSet(String identifier) {

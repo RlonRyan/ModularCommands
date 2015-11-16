@@ -5,6 +5,8 @@
  */
 package converters;
 
+import commands.CommandManager;
+import commands.CommandNode;
 import converters.Converter;
 import converters.exceptions.ConversionException;
 
@@ -44,6 +46,20 @@ public class StaticConverters {
     @Converter("string")
     public static String convertString(String tag, String parameter) {
         return parameter;
+    }
+
+    @Converter("command")
+    public static CommandNode convertCommand(String tag, String parameter) throws ConversionException {
+        String[] tokens = parameter.split("\\s+");
+        if (tokens.length < 2) {
+            throw new ConversionException(tag, parameter, "Command");
+        }
+        String command = parameter.substring(parameter.indexOf(' ') + 1);
+        CommandNode node = CommandManager.getCommandSet(tokens[0]).getNearest(parameter.substring(parameter.indexOf(' ') + 1));
+        if (!node.identifier.equalsIgnoreCase(command.substring(command.trim().lastIndexOf(' ') + 1))) {
+            throw new ConversionException(tag, parameter, "Command");
+        }
+        return node;
     }
 
 }

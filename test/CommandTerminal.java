@@ -7,6 +7,7 @@
 import Command.Default.*;
 import Command.Print.*;
 import commands.CommandManager;
+import documents.CommandPageGenerator;
 import java.util.Scanner;
 
 /**
@@ -19,6 +20,7 @@ public class CommandTerminal {
         CommandManager.getCommandSet("ct").registerCommand(CommandUtil.class);
         CommandManager.getCommandSet("ct").registerSubset("print");
         CommandManager.getCommandSet("ct").getNearest("print").registerCommand(CommandPrint.class);
+        CommandManager.getCommandSet("ct").registerCommand(CommandPageGenerator.class);
     }
 
     public static void main(String[] args) {

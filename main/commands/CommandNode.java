@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -74,6 +75,10 @@ public class CommandNode {
 
         return node;
 
+    }
+
+    public Map<String, CommandNode> getSubnodes() {
+        return this.subNodes;
     }
 
     public void registerCommand(Class command) {
@@ -144,18 +149,36 @@ public class CommandNode {
                     sb.append(" - Subgroup: ").append(node.identifier).append('\n');
                 } else {
                     sb.append(" - Subcommand: ").append(node.command.getAnnotation(Command.class).value()).append('\n');
-                    sb.append("   - Usage: ").append(node.command.getAnnotation(Command.class).value()).append(' ');
-                    for (Annotation annos[] : node.command.getParameterAnnotations()) {
-                        for (Annotation param : annos) {
-                            if (param instanceof CommandParameter) {
-                                sb.append(((CommandParameter) param).tag()).append(':');
-                                sb.append(((CommandParameter) param).type()).append(' ');
-                            }
-                        }
-                    }
-                    sb.append('\n');
+                    sb.append("   - Usage: ").append(node.getUsage());
                 }
             }
+        }
+        return sb.toString();
+    }
+
+    public String getUsage() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(this.identifier).append(" ");
+        if (this.command == null) {
+            sb.append("[subcommand]");
+        } else {
+            for (Annotation annos[] : this.command.getParameterAnnotations()) {
+                for (Annotation param : annos) {
+                    if (param instanceof CommandParameter) {
+                        CommandParameter cmd = (CommandParameter) param;
+                        if (!cmd.defaultValue().isEmpty()) {
+                            sb.append("[");
+                        }
+                        sb.append('-');
+                        sb.append(cmd.tag()).append(':');
+                        sb.append(cmd.type()).append(' ');
+                        if (!cmd.defaultValue().isEmpty()) {
+                            sb.insert(sb.length() - 1, "]");
+                        }
+                    }
+                }
+            }
+            sb.append('\n');
         }
         return sb.toString();
     }
