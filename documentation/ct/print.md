@@ -1,15 +1,15 @@
 print
-####################
+====================
 
 Usage:
-====================
-''''
+--------------------
+```
 print [subcommand]
-''''
+```
 
 Help:
-====================
-''''
+--------------------
+```
 Help for print:
  - Subcommand: pyramid
    - Usage: pyramid [-n:Integer] 
@@ -17,5 +17,8 @@ Help for print:
    - Usage: stars [-n:Integer] 
  - Subcommand: message
    - Usage: message -m:String 
+
+```
+ 
 
 ''''
