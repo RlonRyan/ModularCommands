@@ -74,7 +74,7 @@ public class CommandPageGenerator {
         }
 
         try (BufferedReader template = Files.newBufferedReader(Paths.get(templateURI));
-                BufferedWriter documentWriter = Files.newBufferedWriter(documentPath, StandardOpenOption.CREATE)) {
+                BufferedWriter documentWriter = Files.newBufferedWriter(documentPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
             String line = template.readLine();
 

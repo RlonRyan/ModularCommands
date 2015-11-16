@@ -15,5 +15,3 @@ Help for quit:
  - No help to give.
 
 ```
-
-''''

@@ -15,5 +15,3 @@ Help for mapify:
  - No help to give.
 
 ```
-
-''''

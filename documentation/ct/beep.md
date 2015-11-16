@@ -15,5 +15,3 @@ Help for beep:
  - No help to give.
 
 ```
-
-''''

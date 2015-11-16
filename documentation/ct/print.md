@@ -19,6 +19,3 @@ Help for print:
    - Usage: message -m:String 
 
 ```
- 
-
-''''

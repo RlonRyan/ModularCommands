@@ -15,5 +15,3 @@ Help for gendocs:
  - No help to give.
 
 ```
-
-''''
