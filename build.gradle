@@ -1,0 +1,125 @@
+apply plugin: 'java'
+
+version = '0.1.0'
+
+sourceSets {
+    main {
+        java {
+            srcDir 'main'
+        }
+        resources {
+            srcDir 'main'
+        }
+    }
+    example {
+        java {
+            srcDir 'main'
+            srcDir 'test'
+        }
+        resources {
+            srcDir 'main'
+            srcDir 'test'
+        }
+    }
+    test {
+        java {
+            srcDir 'test'
+        }
+        resources {
+            srcDir 'test'
+        }
+    }
+}
+
+dependencies {
+    test {
+        compile group: 'junit', name: 'junit', version: '4.11'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    from(sourceSets.main.output)
+    destinationDir = file("${projectDir}/dist/main")
+    baseName = 'ModularCommands'
+    version =  "${version}"
+    manifest {
+        attributes("Implementation-Title": "ModularCommands",
+                   "Implementation-Version": version)
+    }
+}
+
+task exampleJar(type: Jar) {
+    from(sourceSets.main.output)
+    from(sourceSets.example.output)
+    destinationDir = file("${projectDir}/dist/example")
+    baseName = 'ModularCommandsExample'
+    version =  "${version}"
+    manifest {
+        attributes("Implementation-Title": "ModularCommandsExample",
+                   "Implementation-Version": version,
+                   "Main-Class": "modcmd.example.CommandTerminal"
+        )
+    }
+}
+
+test {
+    beforeTest {
+        delete fileTree(dir: "${projectDir}/build/classes/test/Output")
+        delete fileTree(dir: "${projectDir}/test-results/output")
+    }
+    testLogging {
+        events 'started', 'passed', 'failed'
+    }
+    afterTest {
+        copy {
+            from "${projectDir}/build/classes/test/Output"
+            into "${projectDir}/build/test-results/output"
+        }
+    }
+}
+
+task dist {
+    description "Generate the dist. into the dist folder."
+
+    delete "${projectDir}/dist/main"
+    copy {
+        from "${buildDir}/libs"
+        into "${projectDir}/dist/main"
+    }
+}
+
+task zipDist(type: Zip, dependsOn: dist) {
+    from "${projectDir}/dist/main"
+    from "${projectDir}/Readme.md"
+    destinationDir = file("${projectDir}/dist")
+    version = "${version}"
+    appendix = "Main"
+    doLast {
+        println "Created ${zipDist.archiveName}"
+    }
+}
+
+task distExample() {
+    description "Generate the example dist. into the dist folder."
+
+    delete "${projectDir}/dist/example"
+    copy {
+        from "${projectDir}/build/classes/test/Output"
+        into "${projectDir}/dist/example"
+    }
+}
+
+task zipExampleDist(type: Zip, dependsOn: distExample) {
+    from "${projectDir}/dist/example"
+    from "${projectDir}/Readme.md"
+    destinationDir = file("${projectDir}/dist")
+    version = "${version}"
+    appendix = "Example"
+    doLast{
+        println "Created ${zipTest.archiveName}"
+    }
+}
