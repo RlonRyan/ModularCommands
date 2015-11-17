@@ -5,7 +5,6 @@ package modcmd.example;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import modcmd.example.commands.print.CommandPrint;
 import modcmd.example.commands.CommandUtil;
 import modcmd.commands.CommandManager;
@@ -26,6 +25,9 @@ public class CommandTerminal {
     }
 
     public static void main(String[] args) {
+        System.out.println();
+        System.out.println("Command Termial");
+        System.out.println("====================");
         final Scanner in = new Scanner(System.in);
         while (true) {
             String result = CommandManager.execute("root", "ct", in.nextLine(), false);

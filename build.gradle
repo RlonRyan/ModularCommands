@@ -5,29 +5,29 @@ version = '0.1.0'
 sourceSets {
     main {
         java {
-            srcDir 'main'
+            srcDir 'src/main'
         }
-        resources {
-            srcDir 'main'
-        }
+        /*resources {
+        srcDir 'src/main'
+        }*/
     }
     example {
         java {
-            srcDir 'main'
-            srcDir 'test'
+            srcDir 'src/main'
+            srcDir 'src/example'
         }
-        resources {
-            srcDir 'main'
-            srcDir 'test'
-        }
+        /*resources {
+        srcDir 'src/main'
+        srcDir 'src/test'
+        }*/
     }
     test {
         java {
-            srcDir 'test'
+            srcDir 'src/test'
         }
-        resources {
-            srcDir 'test'
-        }
+        /*resources {
+        srcDir 'src/test'
+        }*/
     }
 }
 
@@ -122,4 +122,10 @@ task zipExampleDist(type: Zip, dependsOn: distExample) {
     doLast{
         println "Created ${zipTest.archiveName}"
     }
+}
+
+task runExample(type:JavaExec) {
+    main = "modcmd.example.CommandTerminal"
+    classpath = sourceSets.example.runtimeClasspath
+    standardInput = System.in
 }
