@@ -56,7 +56,7 @@ public class CommandPageGenerator {
         URI templateURI;
 
         try {
-            templateURI = ClassLoader.getSystemClassLoader().getResource("documents/templates/command_template.md").toURI();
+            templateURI = ClassLoader.getSystemClassLoader().getResource("modcmd/documents/templates/command_template.md").toURI();
         } catch (URISyntaxException e) {
             return "Improper template filepath syntax.";
         } catch (NullPointerException e) {

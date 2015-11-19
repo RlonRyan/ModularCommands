@@ -7,27 +7,27 @@ sourceSets {
         java {
             srcDir 'src/main'
         }
-        /*resources {
-        srcDir 'src/main'
-        }*/
+        resources {
+            srcDir 'src/main'
+        }
     }
     example {
         java {
             srcDir 'src/main'
             srcDir 'src/example'
         }
-        /*resources {
-        srcDir 'src/main'
-        srcDir 'src/test'
-        }*/
+        resources {
+            srcDir 'src/main'
+            srcDir 'src/example'
+        }
     }
     test {
         java {
             srcDir 'src/test'
         }
-        /*resources {
-        srcDir 'src/test'
-        }*/
+        resources {
+            srcDir 'src/test'
+        }
     }
 }
 
