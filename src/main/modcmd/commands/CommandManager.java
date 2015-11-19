@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import modcmd.permissions.PermissionManager;
@@ -38,6 +39,10 @@ public final class CommandManager {
     static {
         assert MARKER_CHAR != ESCAPE_CHAR;
         // Otherwise we have some pretty big issues...
+    }
+
+    public static Set<String> getCommandSetNames() {
+        return ROOT_COMMAND_NODE.getSubnodes().keySet();
     }
 
     public static boolean hasCommandSet(String identifier) {
