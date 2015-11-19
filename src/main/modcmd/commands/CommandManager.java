@@ -120,8 +120,11 @@ public final class CommandManager {
                 return "Null pointer!";
             }
         } else {
-            System.out.println(node.getHelp());
-            return null;
+            if (node.subNodes.isEmpty()) {
+                return node.getUsage();
+            } else {
+                return node.getHelp();
+            }
         }
     }
 
