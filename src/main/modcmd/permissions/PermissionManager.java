@@ -35,7 +35,7 @@ public class PermissionManager {
         return permHandlers.containsKey(perm.substring(0, delim > 0 ? delim : perm.length()).toLowerCase());
     }
 
-    public static int checkPermission(String perm, String user) throws PermissionException {
+    public static int checkPermission(String perm, Object user) throws PermissionException {
         try {
             int delim = perm.indexOf(".");
             Method m = permHandlers.get(perm.substring(0, delim > 0 ? delim : perm.length()).toLowerCase());

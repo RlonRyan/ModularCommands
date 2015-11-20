@@ -12,6 +12,7 @@ import modcmd.commands.CommandParameter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -34,14 +35,14 @@ public final class ConverterManager {
         return converters.containsKey(type.toLowerCase());
     }
 
-    public static Object convert(CommandParameter parameter, String value) throws ConverterException {
+    public static Object convert(Object user, CommandParameter parameter, String value) throws ConverterException {
         try {
             Method converter = converters.get(parameter.type().toLowerCase());
             if (converter == null) {
                 throw new ConverterMissingExeption(value, parameter.type());
             }
-            Object result = converter.invoke(null, parameter.tag(), value);
-            return result == null ? converter.invoke(null, parameter.tag(), parameter.defaultValue()) : result;
+            Object result = converter.invoke(null, user, parameter.tag(), value);
+            return result == null ? converter.invoke(null, user, parameter.tag(), parameter.defaultValue()) : result;
         } catch (InvocationTargetException e) {
             if (e.getCause() instanceof ConversionException) {
                 throw (ConversionException) e.getCause();
@@ -58,11 +59,27 @@ public final class ConverterManager {
     public static void addConverters(Class converterClass) {
         for (Method m : converterClass.getMethods()) {
             if (m.isAnnotationPresent(Converter.class)) {
-                if (Modifier.isStatic(m.getModifiers()) && Modifier.isPublic(m.getModifiers())) {
-                    converters.putIfAbsent(m.getAnnotation(Converter.class).value().toLowerCase(), m);
-                } else {
+                if (!(Modifier.isStatic(m.getModifiers()) && Modifier.isPublic(m.getModifiers()))) {
                     Logger.getLogger(ConverterManager.class.getCanonicalName()).log(Level.SEVERE, "Converter Method: {1}.{0} is not public static!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
+                    continue;
                 }
+                if (m.getParameterTypes().length != 3) {
+                    Logger.getLogger(ConverterManager.class.getCanonicalName()).log(Level.SEVERE, "Converter Method: {1}.{0} does not accept proper number of arguments!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
+                    continue;
+                }
+                if (m.getParameterTypes()[0] != Object.class) {
+                    Logger.getLogger(ConverterManager.class.getCanonicalName()).log(Level.SEVERE, "Converter Method: {1}.{0} does not accept proper type for argument 1!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
+                    continue;
+                }
+                if (m.getParameterTypes()[1] != String.class) {
+                    Logger.getLogger(ConverterManager.class.getCanonicalName()).log(Level.SEVERE, "Converter Method: {1}.{0} does not accept proper type for argument 2!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
+                    continue;
+                }
+                if (m.getParameterTypes()[2] != String.class) {
+                    Logger.getLogger(ConverterManager.class.getCanonicalName()).log(Level.SEVERE, "Converter Method: {1}.{0} does not accept proper type for argument 3!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
+                    continue;
+                }
+                converters.putIfAbsent(m.getAnnotation(Converter.class).value().toLowerCase(), m);
             }
         }
     }

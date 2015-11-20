@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import modcmd.commands.CommandUserParameter;
 
 /**
  *
@@ -34,6 +35,8 @@ public final class CommandValidator {
     public static final String PARAMETER_MISSING_CONVERTER = "\t\t- Missing Converter For: {0}";
 
     public static boolean validate(Method m) {
+
+        StringBuilder sb = new StringBuilder();
 
         if (m.getAnnotation(Command.class) == null) {
             logger.log(Level.SEVERE, INVALID_COMMAND_HEADER, m.getName());
@@ -66,7 +69,9 @@ public final class CommandValidator {
         for (Parameter p : m.getParameters()) {
             CommandParameter annotation = p.getAnnotation(CommandParameter.class);
             if (annotation == null) {
-                invalidParams.add(p);
+                if (p.getAnnotation(CommandUserParameter.class) == null) {
+                    invalidParams.add(p);
+                }
             } else if (!ConverterManager.hasConverterFor(annotation.type())) {
                 invalidParams.add(p);
             }

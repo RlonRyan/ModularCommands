@@ -56,27 +56,27 @@ public final class CommandManager {
         return ROOT_COMMAND_NODE.subNodes.get(identifier.toLowerCase());
     }
 
-    public static String execute(String user, String cmdset, String line) {
+    public static String execute(Object user, String cmdset, String line) {
         return execute(user, cmdset, line, true);
     }
 
-    public static String execute(String user, String cmdset, String line, boolean checked) {
+    public static String execute(Object user, String cmdset, String line, boolean checked) {
         return execute(user, cmdset, line.split("\\s+"), checked);
     }
 
-    public static String execute(String user, String cmdset, String[] args) {
+    public static String execute(Object user, String cmdset, String[] args) {
         return execute(user, cmdset, args, true);
     }
 
-    public static String execute(String user, String cmdset, String[] args, boolean checked) {
+    public static String execute(Object user, String cmdset, String[] args, boolean checked) {
         return execute(user, cmdset, new ArrayDeque<>(Arrays.asList(args)), checked);
     }
 
-    public static String execute(String user, String cmdset, ArrayDeque<String> args) {
+    public static String execute(Object user, String cmdset, ArrayDeque<String> args) {
         return execute(user, cmdset, args, true);
     }
 
-    public static String execute(String user, String cmdset, ArrayDeque<String> args, boolean checked) {
+    public static String execute(Object user, String cmdset, ArrayDeque<String> args, boolean checked) {
 
         CommandNode node = ROOT_COMMAND_NODE.subNodes.getOrDefault(cmdset, ROOT_COMMAND_NODE).getNearest(args);
 
@@ -95,18 +95,18 @@ public final class CommandManager {
             }
 
             // Get Parameters
-            Deque<CommandParameter> params = new ArrayDeque<>();
+            Deque<Annotation> params = new ArrayDeque<>();
             for (Annotation[] annos : node.command.getParameterAnnotations()) {
                 for (Annotation anno : annos) {
-                    if (anno instanceof CommandParameter) {
-                        params.add((CommandParameter) anno);
+                    if (anno instanceof CommandParameter || anno instanceof CommandUserParameter) {
+                        params.add(anno);
                     }
                 }
             }
 
             // Attempt to execute command.
             try {
-                Object[] objargs = objectify(params, mapify(args));
+                Object[] objargs = objectify(user, params, mapify(args));
                 //System.out.println(Arrays.toString(objargs));
                 Object result = node.command.invoke(null, objargs);
                 return result == null ? null : result.toString();
@@ -120,11 +120,7 @@ public final class CommandManager {
                 return "Null pointer!";
             }
         } else {
-            if (node.subNodes.isEmpty()) {
-                return node.getUsage();
-            } else {
-                return node.getHelp();
-            }
+            return node.getHelp();
         }
     }
 
@@ -161,24 +157,36 @@ public final class CommandManager {
         return argmap;
     }
 
-    public static Object[] objectify(Deque<CommandParameter> params, Map<String, String> args) throws CommandException {
+    public static Object[] objectify(Object user, Deque<Annotation> params, Map<String, String> args) throws CommandException {
         Object[] objargs = new Object[params.size()];
         int index = 0;
 
+        if (params.peek() instanceof CommandUserParameter) {
+            params.pop();
+            objargs[index++] = user;
+        }
+
         //System.out.printf("Size: %1$s%nContains Default: %2$b%n", argset.size(), args.containsKey(""));
-        if (params.size() == 1 && !args.containsKey(params.peek().tag()) && args.containsKey(DEFAULT_KEY)) {
-            CommandParameter param = params.pop();
+        if (params.size() == 1 && params.peek() instanceof CommandParameter && !args.containsKey(((CommandParameter) params.peek()).tag()) && args.containsKey(DEFAULT_KEY)) {
+            CommandParameter param = (CommandParameter) params.pop();
             //System.out.printf("Default Key Value: %1$s%n\t - Default value: \"%2$s\"%n", args.getOrDefault(DEFAULT_KEY, param.defaultValue()), param.defaultValue());
-            objargs[0] = ConverterManager.convert(param, args.getOrDefault(DEFAULT_KEY, param.defaultValue()));
+            objargs[index] = ConverterManager.convert(user, param, args.getOrDefault(DEFAULT_KEY, param.defaultValue()));
             return objargs;
         }
 
-        for (CommandParameter param : params) {
-            if ((!param.defaultValue().isEmpty()) || args.containsKey(param.tag())) {
-                objargs[index++] = ConverterManager.convert(param, args.getOrDefault(param.tag(), param.defaultValue()));
-            } else {
-                throw new CommandMissingParameterException(param);
+        for (Annotation param : params) {
+            if (params.peek() instanceof CommandUserParameter) {
+                params.pop();
+                objargs[index++] = user;
+                continue;
             }
+            CommandParameter cp = (CommandParameter) param;
+            if ((!cp.defaultValue().isEmpty()) || args.containsKey(cp.tag())) {
+                objargs[index++] = ConverterManager.convert(user, cp, args.getOrDefault(cp.tag(), cp.defaultValue()));
+            } else {
+                throw new CommandMissingParameterException(cp);
+            }
+
         }
 
         return objargs;

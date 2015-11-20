@@ -20,7 +20,7 @@ public class PermissionException extends CommandException {
      * specified detail message.
      *
      */
-    public PermissionException(String issue, String user, String permission, String reason) {
+    public PermissionException(String issue, Object user, String permission, String reason) {
         super(String.format(MESSAGE_FORMAT, issue, user, permission, reason));
     }
 }

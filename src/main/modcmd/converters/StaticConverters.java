@@ -7,7 +7,6 @@ package modcmd.converters;
 
 import modcmd.commands.CommandManager;
 import modcmd.commands.CommandNode;
-import modcmd.converters.Converter;
 import modcmd.converters.exceptions.ConversionException;
 
 /**
@@ -17,7 +16,7 @@ import modcmd.converters.exceptions.ConversionException;
 public class StaticConverters {
 
     @Converter("integer")
-    public static int convertInteger(String tag, String parameter) throws ConversionException {
+    public static int convertInteger(Object user, String tag, String parameter) throws ConversionException {
         try {
             return Integer.decode(parameter);
         } catch (NumberFormatException ne) {
@@ -26,7 +25,7 @@ public class StaticConverters {
     }
 
     @Converter("double")
-    public static double convertDouble(String tag, String parameter) throws ConversionException {
+    public static double convertDouble(Object user, String tag, String parameter) throws ConversionException {
         try {
             return Double.parseDouble(parameter);
         } catch (NumberFormatException ne) {
@@ -35,7 +34,7 @@ public class StaticConverters {
     }
 
     @Converter("float")
-    public static double convertFloat(String tag, String parameter) throws ConversionException {
+    public static double convertFloat(Object user, String tag, String parameter) throws ConversionException {
         try {
             return Float.parseFloat(parameter);
         } catch (NumberFormatException ne) {
@@ -44,12 +43,24 @@ public class StaticConverters {
     }
 
     @Converter("string")
-    public static String convertString(String tag, String parameter) {
+    public static String convertString(Object user, String tag, String parameter) {
         return parameter;
     }
 
+    @Converter("user")
+    public static Object convertUser(Object user, String tag, String parameter) throws ConversionException {
+        if (parameter.length() != 0) {
+            if (parameter.equalsIgnoreCase("self")) {
+                return user;
+            } else {
+                throw new ConversionException(tag, parameter, "User");
+            }
+        }
+        return user;
+    }
+
     @Converter("command")
-    public static CommandNode convertCommand(String tag, String parameter) throws ConversionException {
+    public static CommandNode convertCommand(Object user, String tag, String parameter) throws ConversionException {
         String[] tokens = parameter.split("\\s+");
         if (tokens.length < 2) {
             throw new ConversionException(tag, parameter, "Command");
