@@ -120,8 +120,9 @@ public class CommandNode {
         if (this.command != null) {
             for (Parameter p : this.command.getParameters()) {
                 toComplete = (!toComplete.isEmpty()) && toComplete.charAt(0) == MARKER_CHAR ? toComplete.substring(1) : toComplete;
-                if ((toComplete.length() < 2) || p.getAnnotation(CommandParameter.class).tag().startsWith(toComplete.substring(1))) {
-                    suggestions.add(MARKER_CHAR + p.getAnnotation(CommandParameter.class).tag());
+                CommandParameter param = p.getAnnotation(CommandParameter.class);
+                if ((toComplete.length() < 2) || (param != null && param.tag().startsWith(toComplete.substring(1)))) {
+                    suggestions.add(MARKER_CHAR + param.tag());
                 }
             }
         }
