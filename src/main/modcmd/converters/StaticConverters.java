@@ -49,14 +49,11 @@ public class StaticConverters {
 
     @Converter("user")
     public static Object convertUser(Object user, String tag, String parameter) throws ConversionException {
-        if (parameter.length() != 0) {
-            if (parameter.equalsIgnoreCase("self")) {
-                return user;
-            } else {
-                throw new ConversionException(tag, parameter, "User");
-            }
+        if (parameter.equalsIgnoreCase("%user%")) {
+            return user;
+        } else {
+            throw new ConversionException(tag, parameter, "User");
         }
-        return user;
     }
 
     @Converter("command")

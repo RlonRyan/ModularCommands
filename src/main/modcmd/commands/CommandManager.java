@@ -95,11 +95,11 @@ public final class CommandManager {
             }
 
             // Get Parameters
-            Deque<Annotation> params = new ArrayDeque<>();
+            Deque<CommandParameter> params = new ArrayDeque<>();
             for (Annotation[] annos : node.command.getParameterAnnotations()) {
                 for (Annotation anno : annos) {
-                    if (anno instanceof CommandParameter || anno instanceof CommandUserParameter) {
-                        params.add(anno);
+                    if (anno instanceof CommandParameter) {
+                        params.add((CommandParameter) anno);
                     }
                 }
             }
@@ -157,36 +157,24 @@ public final class CommandManager {
         return argmap;
     }
 
-    public static Object[] objectify(Object user, Deque<Annotation> params, Map<String, String> args) throws CommandException {
+    public static Object[] objectify(Object user, Deque<CommandParameter> params, Map<String, String> args) throws CommandException {
         Object[] objargs = new Object[params.size()];
         int index = 0;
 
-        if (params.peek() instanceof CommandUserParameter) {
-            params.pop();
-            objargs[index++] = user;
-        }
-
         //System.out.printf("Size: %1$s%nContains Default: %2$b%n", argset.size(), args.containsKey(""));
         if (params.size() == 1 && params.peek() instanceof CommandParameter && !args.containsKey(((CommandParameter) params.peek()).tag()) && args.containsKey(DEFAULT_KEY)) {
-            CommandParameter param = (CommandParameter) params.pop();
             //System.out.printf("Default Key Value: %1$s%n\t - Default value: \"%2$s\"%n", args.getOrDefault(DEFAULT_KEY, param.defaultValue()), param.defaultValue());
-            objargs[index] = ConverterManager.convert(user, param, args.getOrDefault(DEFAULT_KEY, param.defaultValue()));
+            objargs[index] = ConverterManager.convert(user, params.peek(), args.getOrDefault(DEFAULT_KEY, params.pop().defaultValue()));
             return objargs;
         }
 
-        for (Annotation param : params) {
-            if (params.peek() instanceof CommandUserParameter) {
-                params.pop();
-                objargs[index++] = user;
-                continue;
-            }
+        for (CommandParameter param : params) {
             CommandParameter cp = (CommandParameter) param;
             if ((!cp.defaultValue().isEmpty()) || args.containsKey(cp.tag())) {
                 objargs[index++] = ConverterManager.convert(user, cp, args.getOrDefault(cp.tag(), cp.defaultValue()));
             } else {
                 throw new CommandMissingParameterException(cp);
             }
-
         }
 
         return objargs;

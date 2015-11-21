@@ -139,8 +139,10 @@ public class CommandNode {
         }
 
         if (this.subNodes.isEmpty()) {
-            if (!this.identifier.isEmpty()) {
+            if (this.command == null) {
                 sb.append(" - No help to give.").append('\n');
+            } else {
+                sb.append(" - Usage: ").append(this.getUsage());
             }
         } else {
             for (CommandNode node : this.subNodes.values()) {

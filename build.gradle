@@ -124,7 +124,7 @@ task zipExampleDist(type: Zip, dependsOn: distExample) {
     }
 }
 
-task runExample(type:JavaExec) {
+task run(type:JavaExec) {
     main = "modcmd.example.CommandTerminal"
     classpath = sourceSets.example.runtimeClasspath
     standardInput = System.in
