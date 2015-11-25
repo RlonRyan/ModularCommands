@@ -31,7 +31,9 @@ public class CommandUtil {
         if (node.identifier.equals("default") && node.parent != null) {
             node = node.parent;
         }
-        System.out.println(node.getHelp());
+        for (String line : node.getHelp(new ArrayDeque<String>())) {
+            System.out.println(line);
+        }
     }
 
     @Command("suggest")
@@ -61,15 +63,17 @@ public class CommandUtil {
     }
 
     @Command(value = "sudo", checked = true)
-    public static String sudo(
+    public static void sudo(
             @CommandParameter(tag = "u", name = "user", description = "The user to execute as.", type = "String", defaultValue = "root") String user,
             @CommandParameter(tag = "c", name = "command", description = "The command to execute.", type = "String") String cmd
     ) {
-        return CommandManager.execute(user, "ct", cmd, false);
+        for (String line : CommandManager.execute(user, "ct", cmd, false)) {
+            System.out.println(line);
+        }
     }
 
     @Command("whois")
-    public static void whois(@CommandParameter(tag = "u", name = "user", description = "The user to find information on.", type = "User", defaultValue = "%user%") Object user) {
+    public static void whois(@CommandParameter(tag = "u", name = "user", description = "The user to find information on.", type = "User", defaultValue = "%") Object user) {
         System.out.println(user.toString());
     }
 

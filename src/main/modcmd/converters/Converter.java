@@ -18,6 +18,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Converter {
 
-    String value();
+    String[] value();
 
 }

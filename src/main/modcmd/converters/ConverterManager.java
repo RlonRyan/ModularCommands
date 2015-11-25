@@ -12,7 +12,6 @@ import modcmd.commands.CommandParameter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -79,7 +78,9 @@ public final class ConverterManager {
                     Logger.getLogger(ConverterManager.class.getCanonicalName()).log(Level.SEVERE, "Converter Method: {1}.{0} does not accept proper type for argument 3!", new Object[]{m.getName(), m.getClass().getCanonicalName()});
                     continue;
                 }
-                converters.putIfAbsent(m.getAnnotation(Converter.class).value().toLowerCase(), m);
+                for (String type : m.getAnnotation(Converter.class).value()) {
+                    converters.putIfAbsent(type, m);
+                }
             }
         }
     }

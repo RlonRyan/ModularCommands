@@ -5,6 +5,7 @@ package modcmd.example;
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+import java.util.Deque;
 import modcmd.example.commands.print.CommandPrint;
 import modcmd.example.commands.CommandUtil;
 import modcmd.commands.CommandManager;
@@ -30,9 +31,9 @@ public class CommandTerminal {
         System.out.println("====================");
         final Scanner in = new Scanner(System.in);
         while (true) {
-            String result = CommandManager.execute("root", "ct", in.nextLine(), false);
-            if (result != null) {
-                System.out.printf("Result: %1$s%n", result);
+            Deque<String> result = CommandManager.execute("root", "ct", in.nextLine(), false);
+            for (String line : result) {
+                System.out.println(line);
             }
         }
     }

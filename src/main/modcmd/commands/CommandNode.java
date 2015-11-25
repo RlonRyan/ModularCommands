@@ -13,6 +13,7 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,33 +131,32 @@ public class CommandNode {
         return suggestions;
     }
 
-    public String getHelp() {
-
-        StringBuilder sb = new StringBuilder();
+    public Deque<String> getHelp(Deque<String> lines) {
 
         if (!this.identifier.isEmpty()) {
-            sb.append("Help for ").append(this.identifier).append(":\n");
+            lines.add("Help for " + this.identifier + ":");
         }
 
         if (this.subNodes.isEmpty()) {
             if (this.command == null) {
-                sb.append(" - No help to give.").append('\n');
+                lines.add(" - No help to give.");
             } else {
-                sb.append(" - Usage: ").append(this.getUsage());
+                lines.add(" - Usage: " + this.getUsage());
             }
         } else {
             for (CommandNode node : this.subNodes.values()) {
                 if (node.identifier.isEmpty()) {
-                    sb.append(node.getHelp());
+                    node.getHelp(lines);
                 } else if (node.command == null) {
-                    sb.append(" - Subgroup: ").append(node.identifier).append('\n');
+                    lines.add(" - Subgroup: " + node.identifier);
                 } else {
-                    sb.append(" - Subcommand: ").append(node.command.getAnnotation(Command.class).value()).append('\n');
-                    sb.append("   - Usage: ").append(node.getUsage());
+                    lines.add(" - Subcommand: " + node.identifier);
+                    lines.add("   - Usage: " + node.getUsage());
                 }
             }
         }
-        return sb.toString();
+
+        return lines;
     }
 
     public String getUsage() {
@@ -181,7 +181,6 @@ public class CommandNode {
                     }
                 }
             }
-            sb.append('\n');
         }
         return sb.toString();
     }

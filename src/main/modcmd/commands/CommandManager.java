@@ -56,72 +56,80 @@ public final class CommandManager {
         return ROOT_COMMAND_NODE.subNodes.get(identifier.toLowerCase());
     }
 
-    public static String execute(Object user, String cmdset, String line) {
+    public static Deque<String> execute(Object user, String cmdset, String line) {
         return execute(user, cmdset, line, true);
     }
 
-    public static String execute(Object user, String cmdset, String line, boolean checked) {
+    public static Deque<String> execute(Object user, String cmdset, String line, boolean checked) {
         return execute(user, cmdset, line.split("\\s+"), checked);
     }
 
-    public static String execute(Object user, String cmdset, String[] args) {
+    public static Deque<String> execute(Object user, String cmdset, String[] args) {
         return execute(user, cmdset, args, true);
     }
 
-    public static String execute(Object user, String cmdset, String[] args, boolean checked) {
+    public static Deque<String> execute(Object user, String cmdset, String[] args, boolean checked) {
         return execute(user, cmdset, new ArrayDeque<>(Arrays.asList(args)), checked);
     }
 
-    public static String execute(Object user, String cmdset, ArrayDeque<String> args) {
+    public static Deque<String> execute(Object user, String cmdset, ArrayDeque<String> args) {
         return execute(user, cmdset, args, true);
     }
 
-    public static String execute(Object user, String cmdset, ArrayDeque<String> args, boolean checked) {
+    public static Deque<String> execute(Object user, String cmdset, ArrayDeque<String> args, boolean checked) {
+
+        Deque<String> lines = new ArrayDeque<>();
 
         CommandNode node = ROOT_COMMAND_NODE.subNodes.getOrDefault(cmdset, ROOT_COMMAND_NODE).getNearest(args);
 
-        if (node.command != null) {
-            //System.out.printf("Commmand Node: %1$s%n - Args: %2$s%n", node.identifier, args.toString());\
-
-            // Check the user's permissions.
-            if (checked && node.command.getAnnotation(Command.class).checked()) {
-                try {
-                    if (PermissionManager.checkPermission(node.getFullIdentifier(), user) != 0) {
-                        return "Permission denied.";
-                    }
-                } catch (PermissionException e) {
-                    return e.getMessage();
-                }
-            }
-
-            // Get Parameters
-            Deque<CommandParameter> params = new ArrayDeque<>();
-            for (Annotation[] annos : node.command.getParameterAnnotations()) {
-                for (Annotation anno : annos) {
-                    if (anno instanceof CommandParameter) {
-                        params.add((CommandParameter) anno);
-                    }
-                }
-            }
-
-            // Attempt to execute command.
-            try {
-                Object[] objargs = objectify(user, params, mapify(args));
-                //System.out.println(Arrays.toString(objargs));
-                Object result = node.command.invoke(null, objargs);
-                return result == null ? null : result.toString();
-            } catch (CommandException ce) {
-                return ce.getMessage();
-            } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, "Error!", ex);
-                return ex.getClass().getName();
-            } catch (NullPointerException ex) {
-                Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, "Null pointer!", ex);
-                return "Null pointer!";
-            }
-        } else {
-            return node.getHelp();
+        if (node.command == null) {
+            node.getHelp(lines);
+            return lines;
         }
+
+        // Check the user's permissions.
+        if (checked && node.command.getAnnotation(Command.class).checked()) {
+            try {
+                if (PermissionManager.checkPermission(node.getFullIdentifier(), user) != 0) {
+                    lines.add("Permission denied.");
+                    return lines;
+                }
+            } catch (PermissionException e) {
+                lines.add("Permission Handler Error.");
+                lines.add(e.getLocalizedMessage());
+                return lines;
+            }
+        }
+
+        // Get Parameters
+        Deque<CommandParameter> params = new ArrayDeque<>();
+        for (Annotation[] annos : node.command.getParameterAnnotations()) {
+            for (Annotation anno : annos) {
+                if (anno instanceof CommandParameter) {
+                    params.add((CommandParameter) anno);
+                }
+            }
+        }
+
+        // Attempt to execute command.
+        try {
+            Object[] objargs = objectify(user, params, mapify(args));
+            //System.out.println(Arrays.toString(objargs));
+            Object result = node.command.invoke(null, objargs);
+            if (result != null) {
+                lines.add(result.toString());
+            }
+        } catch (CommandException ce) {
+            lines.add(ce.getMessage());
+        } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
+            Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, "Error!", ex);
+            lines.add(ex.getClass().getName());
+        } catch (NullPointerException ex) {
+            Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, "Null pointer!", ex);
+            lines.add("Null pointer!");
+        }
+
+        return lines;
     }
 
     public static Map<String, String> mapify(Collection<String> params) {

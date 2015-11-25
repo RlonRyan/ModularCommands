@@ -18,6 +18,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -93,10 +95,16 @@ public class CommandPageGenerator {
 
     public static String format(String line, CommandNode cmd) {
 
+        StringBuilder sb = new StringBuilder();
+
+        for (String e : cmd.getHelp(new ArrayDeque<String>())) {
+            sb.append(e).append("\n");
+        }
+
         Map<String, String> replacements = new HashMap<>();
         replacements.put("\\$\\{command_name\\}", cmd.identifier);
         replacements.put("\\$\\{command_usage\\}", cmd.getUsage());
-        replacements.put("\\$\\{command_help\\}", cmd.getHelp());
+        replacements.put("\\$\\{command_help\\}", sb.toString());
 
         for (String pattern : replacements.keySet()) {
             Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(line);

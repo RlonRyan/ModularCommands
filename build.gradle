@@ -11,29 +11,13 @@ sourceSets {
             srcDir 'src/main'
         }
     }
-    example {
+    test {
         java {
-            srcDir 'src/main'
             srcDir 'src/example'
         }
         resources {
-            srcDir 'src/main'
             srcDir 'src/example'
         }
-    }
-    test {
-        java {
-            srcDir 'src/test'
-        }
-        resources {
-            srcDir 'src/test'
-        }
-    }
-}
-
-dependencies {
-    test {
-        compile group: 'junit', name: 'junit', version: '4.11'
     }
 }
 
@@ -53,8 +37,7 @@ jar {
 }
 
 task exampleJar(type: Jar) {
-    from(sourceSets.main.output)
-    from(sourceSets.example.output)
+    from(sourceSets.test.output)
     destinationDir = file("${projectDir}/dist/example")
     baseName = 'ModularCommandsExample'
     version =  "${version}"
@@ -63,22 +46,6 @@ task exampleJar(type: Jar) {
                    "Implementation-Version": version,
                    "Main-Class": "modcmd.example.CommandTerminal"
         )
-    }
-}
-
-test {
-    beforeTest {
-        delete fileTree(dir: "${projectDir}/build/classes/test/Output")
-        delete fileTree(dir: "${projectDir}/test-results/output")
-    }
-    testLogging {
-        events 'started', 'passed', 'failed'
-    }
-    afterTest {
-        copy {
-            from "${projectDir}/build/classes/test/Output"
-            into "${projectDir}/build/test-results/output"
-        }
     }
 }
 
@@ -126,6 +93,6 @@ task zipExampleDist(type: Zip, dependsOn: distExample) {
 
 task run(type:JavaExec) {
     main = "modcmd.example.CommandTerminal"
-    classpath = sourceSets.example.runtimeClasspath
+    classpath = sourceSets.test.runtimeClasspath
     standardInput = System.in
 }
