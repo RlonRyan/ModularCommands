@@ -29,12 +29,14 @@ public class CommandTerminal {
         System.out.println();
         System.out.println("Command Termial");
         System.out.println("====================");
+        System.out.println();
         final Scanner in = new Scanner(System.in);
         while (true) {
             Deque<String> result = CommandManager.execute("root", "ct", in.nextLine(), false);
             for (String line : result) {
                 System.out.println(line);
             }
+            System.out.println();
         }
     }
 

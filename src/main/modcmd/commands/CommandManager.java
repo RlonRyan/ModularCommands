@@ -84,7 +84,7 @@ public final class CommandManager {
         CommandNode node = ROOT_COMMAND_NODE.subNodes.getOrDefault(cmdset, ROOT_COMMAND_NODE).getNearest(args);
 
         if (node.command == null) {
-            node.getHelp(lines);
+            lines.add("Command not found.");
             return lines;
         }
 
@@ -111,7 +111,7 @@ public final class CommandManager {
                 lines.add(result.toString());
             }
         } catch (CommandException ce) {
-            lines.add(ce.getMessage());
+            lines.addAll(Arrays.asList(ce.getMessage().split("\\n+")));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, "Error!", ex);
             lines.add(ex.getClass().getName());
@@ -155,7 +155,7 @@ public final class CommandManager {
             argmap.put(key, sb.toString());
         }
 
-        //System.out.println(argmap.toString());
+        // Return the argument map
         return argmap;
     }
 
@@ -171,7 +171,7 @@ public final class CommandManager {
                 CommandParameter cp = (CommandParameter) params[i];
                 if (args.containsKey(cp.tag())) {
                     objargs[i] = ConverterManager.convert(user, cp, args.get(cp.tag()));
-                } else if (!assigned && args.containsKey(DEFAULT_KEY)) {
+                } else if (!assigned && !cp.defaultValue().startsWith("%") && args.containsKey(DEFAULT_KEY)) {
                     assigned = true;
                     objargs[i] = ConverterManager.convert(user, cp, args.get(DEFAULT_KEY));
                 } else if (!cp.defaultValue().isEmpty()) {
