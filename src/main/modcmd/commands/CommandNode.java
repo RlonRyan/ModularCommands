@@ -9,7 +9,6 @@ import static modcmd.commands.CommandManager.MARKER_CHAR;
 import modcmd.commands.validators.CommandValidator;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +16,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import modcmd.user.CommandUser;
 
 /**
  *
@@ -28,6 +28,7 @@ public class CommandNode {
     public final String identifier;
     public final CommandNode parent;
     public final Method command;
+    public final Annotation[] parameters;
 
     final HashMap<String, CommandNode> subNodes;
 
@@ -45,7 +46,19 @@ public class CommandNode {
         this.parent = parent;
         this.subNodes = new HashMap<>();
         this.command = command;
-        //Logger.getGlobal().log(Level.INFO, "Registering {0} with ident: {1}", new Object[]{this.command == null ? "command node" : "command", this.getFullIdentifier()});
+        
+        List<Annotation> params = new ArrayList<>();
+        if (this.command != null) {
+            for (Annotation[] annos : this.command.getParameterAnnotations()) {
+                for (Annotation anno : annos) {
+                    if (anno instanceof CommandParameter || anno instanceof CommandUser) {
+                        params.add(anno);
+                    }
+                }
+            }
+        }
+        
+        this.parameters = params.toArray(new Annotation[params.size()]);
     }
 
     public String getFullIdentifier() {
@@ -102,29 +115,29 @@ public class CommandNode {
     }
 
     public List<String> suggestCompletion(ArrayDeque<String> args) {
-        //System.out.println(this.identifier);
-        //System.out.println(args);
+
         List<String> suggestions = new ArrayList<>();
+        
+        if(args.isEmpty()) {
+            return suggestions;
+        }
+        
         String toComplete = args.pollLast();
         toComplete = (toComplete == null) ? "" : toComplete.toLowerCase();
-        //System.out.println('\"' + toComplete + '\"');
-
-        if (toComplete.isEmpty()) {
-            suggestions.addAll(this.subNodes.keySet());
-        } else if (args.isEmpty()) {
-            for (String key : this.subNodes.keySet()) {
-                if (key.startsWith(toComplete)) {
-                    suggestions.add(key);
-                }
+        
+        for(String key : this.subNodes.keySet()) {
+            if (toComplete.isEmpty() || key.startsWith(toComplete)) {
+                suggestions.add(key);
             }
         }
 
         if (this.command != null) {
-            for (Parameter p : this.command.getParameters()) {
-                toComplete = (!toComplete.isEmpty()) && toComplete.charAt(0) == MARKER_CHAR ? toComplete.substring(1) : toComplete;
-                CommandParameter param = p.getAnnotation(CommandParameter.class);
-                if (param != null && ((toComplete.length() < 2) || (param.tag().startsWith(toComplete.substring(1))))) {
-                    suggestions.add(MARKER_CHAR + param.tag());
+            for (Annotation param : parameters) {
+                if(param instanceof CommandParameter) {
+                    CommandParameter cmdparam = (CommandParameter)param;
+                    if(toComplete.isEmpty() || toComplete.charAt(0) == MARKER_CHAR && cmdparam.tag().startsWith(toComplete.substring(1))) {
+                        suggestions.add(MARKER_CHAR + cmdparam.tag());
+                    }
                 }
             }
         }

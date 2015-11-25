@@ -81,7 +81,7 @@ public class CommandUtil {
     @Command("me")
     public static void me(
             @CommandUser Object user,
-            @CommandParameter(tag = "m", name = "message", description = "The message to say.", type = "String", defaultValue = "NOPE") String message) {
+            @CommandParameter(tag = "m", name = "message", description = "The message to say.", type = "String") String message) {
         System.out.println(user.toString() + " " + message);
     }
 

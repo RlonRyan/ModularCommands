@@ -102,19 +102,9 @@ public final class CommandManager {
             }
         }
 
-        // Get Parameters
-        Deque<Annotation> params = new ArrayDeque<>();
-        for (Annotation[] annos : node.command.getParameterAnnotations()) {
-            for (Annotation anno : annos) {
-                if (anno instanceof CommandParameter || anno instanceof CommandUser) {
-                    params.add(anno);
-                }
-            }
-        }
-
         // Attempt to execute command.
         try {
-            Object[] objargs = objectify(user, params, mapify(args));
+            Object[] objargs = objectify(user, mapify(args), node.parameters);
             //System.out.println(Arrays.toString(objargs));
             Object result = node.command.invoke(null, objargs);
             if (result != null) {
@@ -134,10 +124,13 @@ public final class CommandManager {
     }
 
     public static Map<String, String> mapify(Collection<String> params) {
-        //System.out.printf("Mapifying...%n\tParams: %1$s%n\tDefault Tag: \"%2$s\"%n", params.toString(), "");
+        
+        // Craft Argument Map
         Map<String, String> argmap = new HashMap<>();
         StringBuilder sb = new StringBuilder();
         String key = DEFAULT_KEY;
+        
+        // Iterate over tokens
         for (String e : params) {
             if (e.charAt(0) == MARKER_CHAR && e.length() > 1) {
                 if (sb.length() > 0) {
@@ -166,29 +159,23 @@ public final class CommandManager {
         return argmap;
     }
 
-    public static Object[] objectify(Object user, Deque<Annotation> params, Map<String, String> args) throws CommandException {
-        Object[] objargs = new Object[params.size()];
-        int index = 0;
-
-        if(params.peek() instanceof CommandUser) {
-            params.pop();
-            objargs[index++] = user;
-        }
-        //System.out.printf("Size: %1$s%nContains Default: %2$b%n", argset.size(), args.containsKey(""));
-        if (params.size() == 1 && params.peek() instanceof CommandParameter && !args.containsKey(((CommandParameter) params.peek()).tag()) && args.containsKey(DEFAULT_KEY)) {
-            //System.out.printf("Default Key Value: %1$s%n\t - Default value: \"%2$s\"%n", args.getOrDefault(DEFAULT_KEY, param.defaultValue()), param.defaultValue());
-            CommandParameter param = (CommandParameter)params.pop();
-            objargs[index++] = ConverterManager.convert(user, param, args.getOrDefault(DEFAULT_KEY, param.defaultValue()));
-            return objargs;
-        }
-
-        for (Annotation param : params) {
-            if (param instanceof CommandUser) {
-                objargs[index++] = user;
-            } else if (param instanceof CommandParameter) {
-                CommandParameter cp = (CommandParameter) param;
-                if ((!cp.defaultValue().isEmpty()) || args.containsKey(cp.tag())) {
-                    objargs[index++] = ConverterManager.convert(user, cp, args.getOrDefault(cp.tag(), cp.defaultValue()));
+    public static Object[] objectify(Object user, Map<String, String> args, Annotation... params) throws CommandException {
+        
+        Object[] objargs = new Object[params.length];
+        boolean assigned = false;
+        
+        for (int i = 0; i < params.length; i++) {
+            if (params[i] instanceof CommandUser) {
+                objargs[i] = user;
+            } else if (params[i] instanceof CommandParameter) {
+                CommandParameter cp = (CommandParameter) params[i];
+                if (args.containsKey(cp.tag())) {
+                    objargs[i] = ConverterManager.convert(user, cp, args.get(cp.tag()));
+                } else if (!assigned && args.containsKey(DEFAULT_KEY)) {
+                    assigned = true;
+                    objargs[i] = ConverterManager.convert(user, cp, args.get(DEFAULT_KEY));
+                } else if (!cp.defaultValue().isEmpty()) {
+                    objargs[i] = ConverterManager.convert(user, cp, cp.defaultValue());
                 } else {
                     throw new CommandMissingParameterException(cp);
                 }
