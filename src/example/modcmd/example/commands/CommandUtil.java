@@ -11,6 +11,7 @@ import modcmd.commands.CommandNode;
 import modcmd.commands.CommandParameter;
 import java.util.ArrayDeque;
 import java.util.Arrays;
+import modcmd.user.CommandUser;
 
 /**
  *
@@ -79,7 +80,7 @@ public class CommandUtil {
 
     @Command("me")
     public static void me(
-            @CommandParameter(tag = "u", name = "user", description = "The user to find information on.", type = "User", defaultValue = "%user%") Object user,
+            @CommandUser Object user,
             @CommandParameter(tag = "m", name = "message", description = "The message to say.", type = "String", defaultValue = "NOPE") String message) {
         System.out.println(user.toString() + " " + message);
     }

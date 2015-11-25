@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import modcmd.user.CommandUser;
 
 /**
  *
@@ -23,15 +24,15 @@ import java.util.logging.Logger;
  */
 public final class CommandValidator {
 
-    private static final Logger logger = Logger.getLogger(CommandManager.class.getCanonicalName());
+    private static final Logger LOGGER = Logger.getLogger(CommandManager.class.getCanonicalName());
 
-    public static final String INVALID_COMMAND_HEADER = "\nInvalid Command Method: {0}\n";
-    public static final String COMMAND_MISSING_ANNOTATION = "\t- Missing Annotation: {0}\n\t- This is really bad! There might be a core error!\n";
-    public static final String COMMAND_MISSING_MODIFIER = "\t- Missing Modifier: {0}\n";
-    public static final String COMMAND_BAD_NAME = "\t- Bad Name: \"{0}\"\n";
-    public static final String INVALID_PARAMETER_HEADER = "\t- Invalid Parameter: {0}\n";
-    public static final String PARAMETER_MISSING_ANNOTATION = "\t\t- Missing Annotation: {0}\n";
-    public static final String PARAMETER_MISSING_CONVERTER = "\t\t- Missing Converter For: {0}\n";
+    public static final String INVALID_COMMAND_HEADER = "\nInvalid Command Method: %1$s\n";
+    public static final String COMMAND_MISSING_ANNOTATION = "\t- Missing Annotation: %1$s\n\t- This is really bad! There might be a core error!\n";
+    public static final String COMMAND_MISSING_MODIFIER = "\t- Missing Modifier: %1$s\n";
+    public static final String COMMAND_BAD_NAME = "\t- Bad Name: \"%1$s\"\n";
+    public static final String INVALID_PARAMETER_HEADER = "\t- Invalid Parameter: %1$s\n";
+    public static final String PARAMETER_MISSING_ANNOTATION = "\t\t- Missing Annotation: %1$s\n";
+    public static final String PARAMETER_MISSING_CONVERTER = "\t\t- Missing Converter For: %1$s\n";
 
     public static boolean validate(Method m) {
 
@@ -40,14 +41,14 @@ public final class CommandValidator {
         if (m.getAnnotation(Command.class) == null) {
             sb.append(String.format(INVALID_COMMAND_HEADER, m.getName()));
             sb.append(String.format(COMMAND_MISSING_MODIFIER, Command.class.getName()));
-            logger.log(Level.SEVERE, sb.toString());
+            LOGGER.log(Level.SEVERE, sb.toString());
             return false;
         }
 
         if (m.getAnnotation(Command.class).value().isEmpty()) {
             sb.append(String.format(INVALID_COMMAND_HEADER, m.getName()));
-            logger.log(Level.SEVERE, INVALID_COMMAND_HEADER, m.getName());
-            logger.log(Level.SEVERE, COMMAND_BAD_NAME, m.getAnnotation(Command.class).value());
+            sb.append(String.format(COMMAND_BAD_NAME, m.getAnnotation(Command.class).value()));
+            LOGGER.log(Level.SEVERE, sb.toString());
             return false;
         }
 
@@ -56,13 +57,13 @@ public final class CommandValidator {
 
         if (!(isPublic && isStatic)) {
             sb.append(String.format(INVALID_COMMAND_HEADER, m.getName()));
-            logger.log(Level.SEVERE, INVALID_COMMAND_HEADER, m.getName());
             if (!isPublic) {
-                logger.log(Level.SEVERE, COMMAND_MISSING_MODIFIER, "public");
+                sb.append(String.format(COMMAND_MISSING_MODIFIER, "public"));
             }
             if (!isStatic) {
-                logger.log(Level.SEVERE, COMMAND_MISSING_MODIFIER, "static");
+                sb.append(String.format(COMMAND_MISSING_MODIFIER, "static"));
             }
+            LOGGER.log(Level.SEVERE, sb.toString());
             return false;
         }
 
@@ -71,7 +72,9 @@ public final class CommandValidator {
         for (Parameter p : m.getParameters()) {
             CommandParameter annotation = p.getAnnotation(CommandParameter.class);
             if (annotation == null) {
-                invalidParams.add(p);
+                if (p.getAnnotation(CommandUser.class) == null) {
+                    invalidParams.add(p);
+                }
             } else if (!ConverterManager.hasConverterFor(annotation.type())) {
                 invalidParams.add(p);
             }
@@ -79,20 +82,24 @@ public final class CommandValidator {
 
         if (invalidParams.size() > 0) {
             sb.append(String.format(INVALID_COMMAND_HEADER, m.getName()));
-            logger.log(Level.SEVERE, INVALID_COMMAND_HEADER, m.getName());
+
             for (Parameter p : invalidParams) {
                 sb.append(String.format(INVALID_PARAMETER_HEADER, m.getName()));
-                logger.log(Level.SEVERE, INVALID_PARAMETER_HEADER, p.getName());
                 CommandParameter annotation = p.getAnnotation(CommandParameter.class);
                 if (annotation == null) {
-                    logger.log(Level.SEVERE, PARAMETER_MISSING_ANNOTATION, CommandParameter.class.getName());
+                    if (p.getAnnotation(CommandUser.class) == null) {
+                        sb.append(String.format(PARAMETER_MISSING_ANNOTATION, CommandParameter.class.getName()));
+                    } else {
+                        sb.append(String.format("This is really odd..."));
+                    }
                 } else if (!ConverterManager.hasConverterFor(annotation.type())) {
-                    logger.log(Level.SEVERE, PARAMETER_MISSING_CONVERTER, annotation.type());
+                    sb.append(String.format(PARAMETER_MISSING_CONVERTER, annotation.type()));
                 } else {
-                    logger.log(Level.SEVERE, "This is really odd...");
+                    sb.append(String.format("This is really odd..."));
                 }
 
             }
+            LOGGER.log(Level.SEVERE, sb.toString());
             return false;
         }
 

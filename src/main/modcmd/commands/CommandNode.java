@@ -53,6 +53,7 @@ public class CommandNode {
     }
 
     public CommandNode getNearest(String ident) {
+        ident = ident.toLowerCase();
         if (ident.isEmpty()) {
             return this;
         } else if (this.subNodes.containsKey(ident)) {
@@ -85,7 +86,7 @@ public class CommandNode {
     public void registerCommand(Class command) {
         for (Method m : command.getDeclaredMethods()) {
             if (m.getAnnotation(Command.class) != null && CommandValidator.validate(m)) {
-                String name = m.getAnnotation(Command.class).value();
+                String name = m.getAnnotation(Command.class).value().toLowerCase();
                 name = name.isEmpty() ? "default" : name;
                 subNodes.putIfAbsent(name, new CommandNode(name, this, m));
             }
@@ -122,7 +123,7 @@ public class CommandNode {
             for (Parameter p : this.command.getParameters()) {
                 toComplete = (!toComplete.isEmpty()) && toComplete.charAt(0) == MARKER_CHAR ? toComplete.substring(1) : toComplete;
                 CommandParameter param = p.getAnnotation(CommandParameter.class);
-                if ((toComplete.length() < 2) || (param != null && param.tag().startsWith(toComplete.substring(1)))) {
+                if (param != null && ((toComplete.length() < 2) || (param.tag().startsWith(toComplete.substring(1))))) {
                     suggestions.add(MARKER_CHAR + param.tag());
                 }
             }

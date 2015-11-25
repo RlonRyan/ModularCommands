@@ -21,6 +21,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import modcmd.permissions.PermissionManager;
 import modcmd.permissions.exceptions.PermissionException;
+import modcmd.user.CommandUser;
 
 /**
  *
@@ -102,11 +103,11 @@ public final class CommandManager {
         }
 
         // Get Parameters
-        Deque<CommandParameter> params = new ArrayDeque<>();
+        Deque<Annotation> params = new ArrayDeque<>();
         for (Annotation[] annos : node.command.getParameterAnnotations()) {
             for (Annotation anno : annos) {
-                if (anno instanceof CommandParameter) {
-                    params.add((CommandParameter) anno);
+                if (anno instanceof CommandParameter || anno instanceof CommandUser) {
+                    params.add(anno);
                 }
             }
         }
@@ -165,23 +166,34 @@ public final class CommandManager {
         return argmap;
     }
 
-    public static Object[] objectify(Object user, Deque<CommandParameter> params, Map<String, String> args) throws CommandException {
+    public static Object[] objectify(Object user, Deque<Annotation> params, Map<String, String> args) throws CommandException {
         Object[] objargs = new Object[params.size()];
         int index = 0;
 
+        if(params.peek() instanceof CommandUser) {
+            params.pop();
+            objargs[index++] = user;
+        }
         //System.out.printf("Size: %1$s%nContains Default: %2$b%n", argset.size(), args.containsKey(""));
         if (params.size() == 1 && params.peek() instanceof CommandParameter && !args.containsKey(((CommandParameter) params.peek()).tag()) && args.containsKey(DEFAULT_KEY)) {
             //System.out.printf("Default Key Value: %1$s%n\t - Default value: \"%2$s\"%n", args.getOrDefault(DEFAULT_KEY, param.defaultValue()), param.defaultValue());
-            objargs[index] = ConverterManager.convert(user, params.peek(), args.getOrDefault(DEFAULT_KEY, params.pop().defaultValue()));
+            CommandParameter param = (CommandParameter)params.pop();
+            objargs[index++] = ConverterManager.convert(user, param, args.getOrDefault(DEFAULT_KEY, param.defaultValue()));
             return objargs;
         }
 
-        for (CommandParameter param : params) {
-            CommandParameter cp = (CommandParameter) param;
-            if ((!cp.defaultValue().isEmpty()) || args.containsKey(cp.tag())) {
-                objargs[index++] = ConverterManager.convert(user, cp, args.getOrDefault(cp.tag(), cp.defaultValue()));
+        for (Annotation param : params) {
+            if (param instanceof CommandUser) {
+                objargs[index++] = user;
+            } else if (param instanceof CommandParameter) {
+                CommandParameter cp = (CommandParameter) param;
+                if ((!cp.defaultValue().isEmpty()) || args.containsKey(cp.tag())) {
+                    objargs[index++] = ConverterManager.convert(user, cp, args.getOrDefault(cp.tag(), cp.defaultValue()));
+                } else {
+                    throw new CommandMissingParameterException(cp);
+                }
             } else {
-                throw new CommandMissingParameterException(cp);
+                throw new CommandException("Unknown parameter error.");
             }
         }
 
