@@ -19,10 +19,10 @@ import java.util.Scanner;
 public class CommandTerminal {
 
     static {
-        CommandManager.getCommandSet("ct").registerCommand(CommandUtil.class);
+        CommandManager.getCommandSet("ct").registerCommands(CommandUtil.class);
         CommandManager.getCommandSet("ct").registerSubset("print");
-        CommandManager.getCommandSet("ct").getNearest("print").registerCommand(CommandPrint.class);
-        CommandManager.getCommandSet("ct").registerCommand(CommandPageGenerator.class);
+        CommandManager.getCommandSet("ct").getNearest("print").registerCommands(CommandPrint.class);
+        CommandManager.getCommandSet("ct").registerCommands(CommandPageGenerator.class);
     }
 
     public static void main(String[] args) {

@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Level;
@@ -29,13 +30,15 @@ import modcmd.user.CommandUser;
  */
 public final class CommandManager {
 
+    public static final boolean DEFAULT_CHECK = true;
+
     public static final String ROOT_NAME = "root";
     public static final String DEFAULT_KEY = "default";
 
     public static final char MARKER = '-';
     public static final char ESCAPE = '\\';
 
-    private static final CommandNode ROOT_COMMAND_NODE = new CommandNode("root");
+    private static final HashMap<String, CommandNode> COMMAND_SETS = new HashMap<>();
 
     static {
         assert MARKER != ESCAPE;
@@ -43,22 +46,23 @@ public final class CommandManager {
     }
 
     public static Set<String> getCommandSetNames() {
-        return ROOT_COMMAND_NODE.getSubnodes().keySet();
+        return COMMAND_SETS.keySet();
     }
 
     public static boolean hasCommandSet(String identifier) {
-        return ROOT_COMMAND_NODE.subNodes.containsKey(identifier.toLowerCase());
+        return COMMAND_SETS.containsKey(identifier.toLowerCase());
     }
 
     public static CommandNode getCommandSet(String identifier) {
-        if (!ROOT_COMMAND_NODE.subNodes.containsKey(identifier.toLowerCase())) {
-            ROOT_COMMAND_NODE.registerSubset(identifier);
+        identifier = identifier.toLowerCase();
+        if (!COMMAND_SETS.containsKey(identifier)) {
+            COMMAND_SETS.put(identifier, new CommandNode(identifier, null, null));
         }
-        return ROOT_COMMAND_NODE.subNodes.get(identifier.toLowerCase());
+        return COMMAND_SETS.get(identifier);
     }
 
     public static Deque<String> execute(Object user, String cmdset, String line) {
-        return execute(user, cmdset, line, true);
+        return execute(user, cmdset, line, DEFAULT_CHECK);
     }
 
     public static Deque<String> execute(Object user, String cmdset, String line, boolean checked) {
@@ -66,7 +70,7 @@ public final class CommandManager {
     }
 
     public static Deque<String> execute(Object user, String cmdset, String[] args) {
-        return execute(user, cmdset, args, true);
+        return execute(user, cmdset, args, DEFAULT_CHECK);
     }
 
     public static Deque<String> execute(Object user, String cmdset, String[] args, boolean checked) {
@@ -74,17 +78,30 @@ public final class CommandManager {
     }
 
     public static Deque<String> execute(Object user, String cmdset, ArrayDeque<String> args) {
-        return execute(user, cmdset, args, true);
+        return execute(user, cmdset, args, DEFAULT_CHECK);
     }
 
     public static Deque<String> execute(Object user, String cmdset, ArrayDeque<String> args, boolean checked) {
 
+        // Decase the command set name.
+        cmdset = cmdset.toLowerCase();
+
         Deque<String> lines = new ArrayDeque<>();
+        CommandNode node = COMMAND_SETS.get(cmdset);
 
-        CommandNode node = ROOT_COMMAND_NODE.subNodes.getOrDefault(cmdset, ROOT_COMMAND_NODE).getNearest(args);
+        if (node == null) {
+            lines.add("No Such Command Set.");
+            return lines;
+        }
 
-        if (node.commandMethod == null) {
+        node = node.getNearest(args);
+
+        if (node.parent == null || node.commandMethod == null) {
             lines.add("Command not found.");
+            List<String> completionOptions = node.suggestCompletion(args);
+            if (!completionOptions.isEmpty()) {
+                lines.add("Did you mean: " + completionOptions.toString() + '?');
+            }
             return lines;
         }
 

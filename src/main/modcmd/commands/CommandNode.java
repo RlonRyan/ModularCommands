@@ -24,26 +24,19 @@ import static modcmd.commands.CommandManager.MARKER;
  */
 public class CommandNode {
 
-    public final String parentIdent;
+    // Node
     public final String identifier;
-
     public final CommandNode parent;
+
+    // Command
     public final Command command;
     public final Annotation[] parameters;
 
+    // Private
     final HashMap<String, CommandNode> subNodes;
     final Method commandMethod;
 
-    protected CommandNode(String identifier) {
-        this(identifier, null, null);
-    }
-
-    protected CommandNode(String identifier, CommandNode parent) {
-        this(identifier, parent, null);
-    }
-
     protected CommandNode(String identifier, CommandNode parent, Method command) {
-        this.parentIdent = (parent == null ? "" : parent.getFullIdentifier());
         this.identifier = identifier.isEmpty() ? "default" : identifier.toLowerCase();
         this.parent = parent;
         this.subNodes = new HashMap<>();
@@ -65,7 +58,7 @@ public class CommandNode {
     }
 
     public String getFullIdentifier() {
-        return this.parent == null ? this.identifier : (this.parentIdent + "." + this.identifier);
+        return this.parent == null ? this.identifier : (this.parent.identifier + "." + this.identifier);
     }
 
     public CommandNode getNearest(String ident) {
@@ -81,7 +74,6 @@ public class CommandNode {
 
     public CommandNode getNearest(ArrayDeque<String> args) {
 
-        //System.out.println(this.getFullIdentifier() + " args: " + args.peek());
         CommandNode node = this.subNodes.get(args.peek());
 
         if (node == null) {
@@ -99,7 +91,7 @@ public class CommandNode {
         return this.subNodes;
     }
 
-    public void registerCommand(Class command) {
+    public void registerCommands(Class command) {
         for (Method m : command.getDeclaredMethods()) {
             if (m.getAnnotation(Command.class) != null && CommandValidator.validate(m)) {
                 String name = m.getAnnotation(Command.class).name().toLowerCase();
@@ -110,7 +102,7 @@ public class CommandNode {
     }
 
     public boolean registerSubset(String identifier) {
-        return subNodes.putIfAbsent(identifier.toLowerCase(), new CommandNode(identifier, this)) == null;
+        return subNodes.putIfAbsent(identifier.toLowerCase(), new CommandNode(identifier, this, null)) == null;
     }
 
     public boolean deregisterSubnode(String identifier) {
