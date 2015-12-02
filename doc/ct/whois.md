@@ -1,6 +1,10 @@
 whois
 ====================
 
+About:
+--------------------
+No information available.
+
 Usage:
 --------------------
 ```

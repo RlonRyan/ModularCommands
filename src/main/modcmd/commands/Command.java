@@ -22,4 +22,6 @@ public @interface Command {
 
     boolean checked() default false;
 
+    String about() default "No information available.";
+
 }

@@ -1,16 +1,20 @@
 me
 ====================
 
+About:
+--------------------
+No information available.
+
 Usage:
 --------------------
 ```
-me [-u:User] [-m:String] 
+me -m:String 
 ```
 
 Help:
 --------------------
 ```
 Help for me:
- - Usage: me [-u:User] [-m:String] 
+ - Usage: me -m:String 
 
 ```

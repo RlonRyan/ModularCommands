@@ -1,6 +1,10 @@
 gendocs
 ====================
 
+About:
+--------------------
+No information available.
+
 Usage:
 --------------------
 ```

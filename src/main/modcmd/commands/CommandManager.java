@@ -32,13 +32,13 @@ public final class CommandManager {
     public static final String ROOT_NAME = "root";
     public static final String DEFAULT_KEY = "default";
 
-    public static final char MARKER_CHAR = '-';
-    public static final char ESCAPE_CHAR = '\\';
+    public static final char MARKER = '-';
+    public static final char ESCAPE = '\\';
 
     private static final CommandNode ROOT_COMMAND_NODE = new CommandNode("root");
 
     static {
-        assert MARKER_CHAR != ESCAPE_CHAR;
+        assert MARKER != ESCAPE;
         // Otherwise we have some pretty big issues...
     }
 
@@ -83,13 +83,13 @@ public final class CommandManager {
 
         CommandNode node = ROOT_COMMAND_NODE.subNodes.getOrDefault(cmdset, ROOT_COMMAND_NODE).getNearest(args);
 
-        if (node.command == null) {
+        if (node.commandMethod == null) {
             lines.add("Command not found.");
             return lines;
         }
 
         // Check the user's permissions.
-        if (checked && node.command.getAnnotation(Command.class).checked()) {
+        if (checked && node.commandMethod.getAnnotation(Command.class).checked()) {
             try {
                 if (PermissionManager.checkPermission(node.getFullIdentifier(), user) != 0) {
                     lines.add("Permission denied.");
@@ -102,11 +102,11 @@ public final class CommandManager {
             }
         }
 
-        // Attempt to execute command.
+        // Attempt to execute commandMethod.
         try {
             Object[] objargs = objectify(user, mapify(args), node.parameters);
             //System.out.println(Arrays.toString(objargs));
-            Object result = node.command.invoke(null, objargs);
+            Object result = node.commandMethod.invoke(null, objargs);
             if (result != null) {
                 lines.add(result.toString());
             }
@@ -124,22 +124,22 @@ public final class CommandManager {
     }
 
     public static Map<String, String> mapify(Collection<String> params) {
-        
+
         // Craft Argument Map
         Map<String, String> argmap = new HashMap<>();
         StringBuilder sb = new StringBuilder();
         String key = DEFAULT_KEY;
-        
+
         // Iterate over tokens
         for (String e : params) {
-            if (e.charAt(0) == MARKER_CHAR && e.length() > 1) {
+            if (e.charAt(0) == MARKER && e.length() > 1) {
                 if (sb.length() > 0) {
                     argmap.put(key, sb.toString());
                     sb = new StringBuilder();
                 }
                 key = e.substring(1);
             } else {
-                if (e.length() > 0 && e.charAt(0) == ESCAPE_CHAR) {
+                if (e.length() > 0 && e.charAt(0) == ESCAPE) {
                     e = e.substring(1);
                 }
                 if (sb.length() < 1) {
@@ -160,10 +160,10 @@ public final class CommandManager {
     }
 
     public static Object[] objectify(Object user, Map<String, String> args, Annotation... params) throws CommandException {
-        
+
         Object[] objargs = new Object[params.length];
         boolean assigned = false;
-        
+
         for (int i = 0; i < params.length; i++) {
             if (params[i] instanceof CommandUser) {
                 objargs[i] = user;

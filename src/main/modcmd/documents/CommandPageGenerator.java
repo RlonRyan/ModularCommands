@@ -114,6 +114,7 @@ public class CommandPageGenerator {
 
         Map<String, String> replacements = new HashMap<>();
         replacements.put("\\$\\{command_name\\}", cmd.identifier);
+        replacements.put("\\$\\{command_about\\}", cmd.command.about());
         replacements.put("\\$\\{command_usage\\}", cmd.getUsage());
         replacements.put("\\$\\{command_help\\}", sb.toString());
 

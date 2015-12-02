@@ -1,16 +1,20 @@
 stars
 ====================
 
+About:
+--------------------
+No information available.
+
 Usage:
 --------------------
 ```
-stars [-n:Integer] 
+stars -n:Integer 
 ```
 
 Help:
 --------------------
 ```
 Help for stars:
- - Usage: stars [-n:Integer] 
+ - Usage: stars -n:Integer 
 
 ```

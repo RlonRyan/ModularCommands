@@ -19,10 +19,16 @@ import modcmd.user.CommandUser;
  */
 public class CommandUtil {
 
-    @Command("quit")
-    public static void execute(@CommandParameter(tag = "m", name = "message", description = "The reason for quitting.", type = "String", defaultValue = "Goodbye!") String message) {
+    @Command(
+            value = "quit",
+            about = "Quits the running application by calling system.exit()."
+    )
+    public static void execute(
+            @CommandParameter(tag = "m", name = "message", description = "The reason for quitting.", type = "String", defaultValue = "Goodbye!") String message,
+            @CommandParameter(tag = "v", name = "value", description = "The quit value", type = "int", defaultValue = "0") int value
+    ) {
         System.out.printf("Quit: %1$s%n", message);
-        System.exit(0);
+        System.exit(value);
     }
 
     @Command("help")

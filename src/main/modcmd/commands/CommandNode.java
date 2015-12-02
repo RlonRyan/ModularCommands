@@ -5,7 +5,6 @@
  */
 package modcmd.commands;
 
-import static modcmd.commands.CommandManager.MARKER_CHAR;
 import modcmd.commands.validators.CommandValidator;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -17,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import modcmd.user.CommandUser;
+import static modcmd.commands.CommandManager.MARKER;
 
 /**
  *
@@ -26,11 +26,13 @@ public class CommandNode {
 
     public final String parentIdent;
     public final String identifier;
+
     public final CommandNode parent;
-    public final Method command;
-    public final Annotation[] parameters;
+    public final Command command;
 
     final HashMap<String, CommandNode> subNodes;
+    final Method commandMethod;
+    final Annotation[] parameters;
 
     protected CommandNode(String identifier) {
         this(identifier, null, null);
@@ -45,11 +47,12 @@ public class CommandNode {
         this.identifier = identifier.isEmpty() ? "default" : identifier.toLowerCase();
         this.parent = parent;
         this.subNodes = new HashMap<>();
-        this.command = command;
-        
+        this.commandMethod = command;
+        this.command = command == null ? null : command.getAnnotation(Command.class);
+
         List<Annotation> params = new ArrayList<>();
-        if (this.command != null) {
-            for (Annotation[] annos : this.command.getParameterAnnotations()) {
+        if (this.commandMethod != null) {
+            for (Annotation[] annos : this.commandMethod.getParameterAnnotations()) {
                 for (Annotation anno : annos) {
                     if (anno instanceof CommandParameter || anno instanceof CommandUser) {
                         params.add(anno);
@@ -57,7 +60,7 @@ public class CommandNode {
                 }
             }
         }
-        
+
         this.parameters = params.toArray(new Annotation[params.size()]);
     }
 
@@ -117,26 +120,26 @@ public class CommandNode {
     public List<String> suggestCompletion(ArrayDeque<String> args) {
 
         List<String> suggestions = new ArrayList<>();
-        
-        if(args.isEmpty()) {
+
+        if (args.isEmpty()) {
             return suggestions;
         }
-        
+
         String toComplete = args.pollLast();
         toComplete = (toComplete == null) ? "" : toComplete.toLowerCase();
-        
-        for(String key : this.subNodes.keySet()) {
+
+        for (String key : this.subNodes.keySet()) {
             if (toComplete.isEmpty() || key.startsWith(toComplete)) {
                 suggestions.add(key);
             }
         }
 
-        if (this.command != null) {
+        if (this.commandMethod != null) {
             for (Annotation param : parameters) {
-                if(param instanceof CommandParameter) {
-                    CommandParameter cmdparam = (CommandParameter)param;
-                    if(toComplete.isEmpty() || toComplete.charAt(0) == MARKER_CHAR && cmdparam.tag().startsWith(toComplete.substring(1))) {
-                        suggestions.add(MARKER_CHAR + cmdparam.tag());
+                if (param instanceof CommandParameter) {
+                    CommandParameter cmdparam = (CommandParameter) param;
+                    if (toComplete.isEmpty() || toComplete.charAt(0) == MARKER && cmdparam.tag().startsWith(toComplete.substring(1))) {
+                        suggestions.add(MARKER + cmdparam.tag());
                     }
                 }
             }
@@ -152,7 +155,7 @@ public class CommandNode {
         }
 
         if (this.subNodes.isEmpty()) {
-            if (this.command == null) {
+            if (this.commandMethod == null) {
                 lines.add(" - No help to give.");
             } else {
                 lines.add(" - Usage: " + this.getUsage());
@@ -161,7 +164,7 @@ public class CommandNode {
             for (CommandNode node : this.subNodes.values()) {
                 if (node.identifier.isEmpty()) {
                     node.getHelp(lines);
-                } else if (node.command == null) {
+                } else if (node.commandMethod == null) {
                     lines.add(" - Subgroup: " + node.identifier);
                 } else {
                     lines.add(" - Subcommand: " + node.identifier);
@@ -176,10 +179,10 @@ public class CommandNode {
     public String getUsage() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.identifier).append(" ");
-        if (this.command == null) {
+        if (this.commandMethod == null) {
             sb.append("[subcommand]");
         } else {
-            for (Annotation annos[] : this.command.getParameterAnnotations()) {
+            for (Annotation annos[] : this.commandMethod.getParameterAnnotations()) {
                 for (Annotation param : annos) {
                     if (param instanceof CommandParameter) {
                         CommandParameter cmd = (CommandParameter) param;

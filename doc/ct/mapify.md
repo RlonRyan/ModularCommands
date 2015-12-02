@@ -1,6 +1,10 @@
 mapify
 ====================
 
+About:
+--------------------
+No information available.
+
 Usage:
 --------------------
 ```
