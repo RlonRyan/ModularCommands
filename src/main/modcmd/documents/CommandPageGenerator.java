@@ -136,7 +136,7 @@ public class CommandPageGenerator {
         StringBuilder sb = new StringBuilder();
 
         for (CommandNode e : cmd.getSubnodes().values()) {
-            sb.append(" - [").append(e.identifier).append("](").append(e.identifier).append(e.getSubnodes().isEmpty() ? "/index.md)\n" : ".md)\n");
+            sb.append(" - [").append(e.identifier).append("](").append(e.identifier).append(e.getSubnodes().isEmpty() ? ".md)\n" : "/index.md)\n");
         }
 
         Map<String, String> replacements = new HashMap<>();
