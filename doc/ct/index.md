@@ -9,8 +9,8 @@ Commands:
  - [print](print/index.md)
  - [gendocs](gendocs.md)
  - [repeat](repeat.md)
- - [me](me.md)
  - [about](about.md)
+ - [me](me.md)
  - [quit](quit.md)
  - [mapify](mapify.md)
  - [suggest](suggest.md)
@@ -19,4 +19,4 @@ Commands:
 
 Related:
 --------------------
- - [root](../index.md)
+

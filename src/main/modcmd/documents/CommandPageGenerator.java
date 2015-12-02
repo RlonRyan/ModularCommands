@@ -146,7 +146,7 @@ public class CommandPageGenerator {
         Map<String, String> replacements = new HashMap<>();
         replacements.put("\\$\\{command_name\\}", cmd.identifier);
         replacements.put("\\$\\{command_list\\}", sb.toString());
-        replacements.put("\\$\\{command_related\\}", String.format(" - [%1$s](../index.md)", cmd.parent.identifier));
+        replacements.put("\\$\\{command_related\\}", cmd.parent == null ? "" : String.format(" - [%1$s](../index.md)", cmd.parent.identifier));
 
         for (String pattern : replacements.keySet()) {
             Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(line);
