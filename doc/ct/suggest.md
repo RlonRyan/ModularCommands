@@ -1,9 +1,9 @@
-suggest
+Command: suggest
 ====================
 
 About:
 --------------------
-No information available.
+Suggests completion options for the provided line.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for suggest:
  - Usage: suggest -l:String 
 
 ```
+
+Related:
+--------------------
+[ct](index.md)

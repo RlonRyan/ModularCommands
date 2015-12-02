@@ -1,9 +1,9 @@
-stars
+Command: stars
 ====================
 
 About:
 --------------------
-No information available.
+Prints a number of stars to the console.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for stars:
  - Usage: stars -n:Integer 
 
 ```
+
+Related:
+--------------------
+[print](index.md)

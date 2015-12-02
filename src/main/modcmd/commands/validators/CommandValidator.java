@@ -45,9 +45,9 @@ public final class CommandValidator {
             return false;
         }
 
-        if (m.getAnnotation(Command.class).value().isEmpty()) {
+        if (m.getAnnotation(Command.class).name().isEmpty()) {
             sb.append(String.format(INVALID_COMMAND_HEADER, m.getName()));
-            sb.append(String.format(COMMAND_BAD_NAME, m.getAnnotation(Command.class).value()));
+            sb.append(String.format(COMMAND_BAD_NAME, m.getAnnotation(Command.class).name()));
             LOGGER.log(Level.SEVERE, sb.toString());
             return false;
         }

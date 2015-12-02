@@ -1,9 +1,9 @@
-pyramid
+Command: pyramid
 ====================
 
 About:
 --------------------
-No information available.
+Prints a pyramid of stars to the console.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for pyramid:
  - Usage: pyramid -n:Integer 
 
 ```
+
+Related:
+--------------------
+[print](index.md)

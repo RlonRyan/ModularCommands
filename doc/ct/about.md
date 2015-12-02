@@ -1,21 +1,21 @@
-Command: beep
+Command: about
 ====================
 
 About:
 --------------------
-Triggers the system to beep.
+Retrieves a description of a command.
 
 Usage:
 --------------------
 ```
-beep 
+about [-s:cmd] 
 ```
 
 Help:
 --------------------
 ```
-Help for beep:
- - Usage: beep 
+Help for about:
+ - Usage: about [-s:cmd] 
 
 ```
 

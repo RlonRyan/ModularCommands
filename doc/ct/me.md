@@ -1,9 +1,9 @@
-me
+Command: me
 ====================
 
 About:
 --------------------
-No information available.
+Prints a message.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for me:
  - Usage: me -m:String 
 
 ```
+
+Related:
+--------------------
+[ct](index.md)

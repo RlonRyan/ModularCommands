@@ -1,9 +1,9 @@
-message
+Command: message
 ====================
 
 About:
 --------------------
-No information available.
+Prints a message to the console.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for message:
  - Usage: message -m:String 
 
 ```
+
+Related:
+--------------------
+[print](index.md)

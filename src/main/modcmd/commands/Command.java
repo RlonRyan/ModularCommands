@@ -18,10 +18,10 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface Command {
 
-    String value();
+    String name();
+
+    String about();
 
     boolean checked() default false;
-
-    String about() default "No information available.";
 
 }

@@ -14,12 +14,18 @@ import modcmd.commands.Command;
  */
 public class CommandPrint {
 
-    @Command("message")
+    @Command(
+            name = "message",
+            about = "Prints a message to the console."
+    )
     public static void print(@CommandParameter(tag = "m", name = "message", description = "The message to print.", type = "String") String message) {
         System.out.println(message);
     }
 
-    @Command("stars")
+    @Command(
+            name = "stars",
+            about = "Prints a number of stars to the console."
+    )
     public static void printStars(@CommandParameter(tag = "n", name = "number", description = "The number of stars to print.", type = "Integer") int n) {
         for (; n > 0; n--) {
             System.out.print("*");
@@ -27,7 +33,10 @@ public class CommandPrint {
         System.out.println();
     }
 
-    @Command("pyramid")
+    @Command(
+            name = "pyramid",
+            about = "Prints a pyramid of stars to the console."
+    )
     public static void printPyramid(@CommandParameter(tag = "n", name = "number", description = "The number of stars to print.", type = "Integer") int n) {
         for (int i = 0; 2 * i < n; i++) {
             for (int ii = 0; ii < i; ii++) {

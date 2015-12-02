@@ -33,7 +33,11 @@ public class CommandPageGenerator {
     public static String INDEX_TEMPLATE = "modcmd/documents/templates/index_template.md";
     public static String COMMAND_TEMPLATE = "modcmd/documents/templates/command_template.md";
 
-    @Command("gendocs")
+    @Command(
+            name = "gendocs",
+            about = "Generates command documentation files.",
+            checked = true
+    )
     public static String generateAllPages(
             @CommandParameter(name = "commandset", tag = "c", description = "Commandset to generate documentation for.", type = "String") String commandset,
             @CommandParameter(name = "path", tag = "p", description = "The folder to output to.", type = "String", defaultValue = "doc") String path
@@ -117,6 +121,7 @@ public class CommandPageGenerator {
         replacements.put("\\$\\{command_about\\}", cmd.command.about());
         replacements.put("\\$\\{command_usage\\}", cmd.getUsage());
         replacements.put("\\$\\{command_help\\}", sb.toString());
+        replacements.put("\\$\\{command_related\\}", String.format("[%1$s](index.md)", cmd.parent.identifier));
 
         for (String pattern : replacements.keySet()) {
             Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(line);
@@ -130,13 +135,14 @@ public class CommandPageGenerator {
 
         StringBuilder sb = new StringBuilder();
 
-        for (String e : cmd.getSubnodes().keySet()) {
-            sb.append(" - [").append(e).append("](").append(e).append(".md)\n");
+        for (CommandNode e : cmd.getSubnodes().values()) {
+            sb.append(" - [").append(e.identifier).append("](").append(e.identifier).append(e.getSubnodes().isEmpty() ? "/index.md)\n" : ".md)\n");
         }
 
         Map<String, String> replacements = new HashMap<>();
         replacements.put("\\$\\{command_name\\}", cmd.identifier);
         replacements.put("\\$\\{command_list\\}", sb.toString());
+        replacements.put("\\$\\{command_related\\}", String.format(" - [%1$s](../index.md)", cmd.parent.identifier));
 
         for (String pattern : replacements.keySet()) {
             Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(line);

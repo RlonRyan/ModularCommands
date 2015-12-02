@@ -1,4 +1,4 @@
-quit
+Command: quit
 ====================
 
 About:
@@ -18,3 +18,7 @@ Help for quit:
  - Usage: quit [-m:String] [-v:int] 
 
 ```
+
+Related:
+--------------------
+[ct](index.md)

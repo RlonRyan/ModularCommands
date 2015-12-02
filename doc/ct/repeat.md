@@ -1,9 +1,9 @@
-repeat
+Command: repeat
 ====================
 
 About:
 --------------------
-No information available.
+Repeats a command. This command is checked.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for repeat:
  - Usage: repeat -n:Integer -c:String 
 
 ```
+
+Related:
+--------------------
+[ct](index.md)

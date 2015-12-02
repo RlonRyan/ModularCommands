@@ -1,9 +1,9 @@
-mapify
+Command: mapify
 ====================
 
 About:
 --------------------
-No information available.
+Uses the internal parser to break down the provide line into arguments.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for mapify:
  - Usage: mapify -l:String 
 
 ```
+
+Related:
+--------------------
+[ct](index.md)

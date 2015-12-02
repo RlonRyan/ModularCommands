@@ -1,9 +1,13 @@
-print
+Command Set: print
 ====================
 
-Sub-Commands:
+Commands:
 --------------------
- - [pyramid](pyramid.md)
- - [stars](stars.md)
- - [message](message.md)
+ - [pyramid](pyramid/index.md)
+ - [stars](stars/index.md)
+ - [message](message/index.md)
 
+
+Related:
+--------------------
+ - [ct](../index.md)

@@ -1,4 +1,4 @@
-${Command_Name}
+Command: ${Command_Name}
 ====================
 
 About:
@@ -16,3 +16,7 @@ Help:
 ```
 ${Command_Help}
 ```
+
+Related:
+--------------------
+${Command_Related}

@@ -1,21 +1,21 @@
-Command: beep
+Command: whoami
 ====================
 
 About:
 --------------------
-Triggers the system to beep.
+Tells the user who he is.
 
 Usage:
 --------------------
 ```
-beep 
+whoami [-u:User] 
 ```
 
 Help:
 --------------------
 ```
-Help for beep:
- - Usage: beep 
+Help for whoami:
+ - Usage: whoami [-u:User] 
 
 ```
 

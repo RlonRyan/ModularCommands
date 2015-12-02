@@ -1,9 +1,9 @@
-gendocs
+Command: gendocs
 ====================
 
 About:
 --------------------
-No information available.
+Generates command documentation files.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for gendocs:
  - Usage: gendocs -c:String [-p:String] 
 
 ```
+
+Related:
+--------------------
+[ct](index.md)

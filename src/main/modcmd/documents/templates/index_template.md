@@ -1,6 +1,10 @@
-${Command_Name}
+Command Set: ${Command_Name}
 ====================
 
-Sub-Commands:
+Commands:
 --------------------
 ${Command_List}
+
+Related:
+--------------------
+${Command_Related}

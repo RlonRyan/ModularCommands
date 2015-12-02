@@ -1,9 +1,9 @@
-sudo
+Command: sudo
 ====================
 
 About:
 --------------------
-No information available.
+Executes a command as someone else.
 
 Usage:
 --------------------
@@ -18,3 +18,7 @@ Help for sudo:
  - Usage: sudo [-u:String] -c:String 
 
 ```
+
+Related:
+--------------------
+[ct](index.md)

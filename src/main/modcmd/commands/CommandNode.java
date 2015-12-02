@@ -102,7 +102,7 @@ public class CommandNode {
     public void registerCommand(Class command) {
         for (Method m : command.getDeclaredMethods()) {
             if (m.getAnnotation(Command.class) != null && CommandValidator.validate(m)) {
-                String name = m.getAnnotation(Command.class).value().toLowerCase();
+                String name = m.getAnnotation(Command.class).name().toLowerCase();
                 name = name.isEmpty() ? "default" : name;
                 subNodes.putIfAbsent(name, new CommandNode(name, this, m));
             }
