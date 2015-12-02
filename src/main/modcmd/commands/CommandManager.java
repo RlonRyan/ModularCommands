@@ -128,7 +128,7 @@ public final class CommandManager {
                 lines.add(result.toString());
             }
         } catch (CommandException ce) {
-            lines.addAll(Arrays.asList(ce.getMessage().split("\\n+")));
+            lines.addAll(Arrays.asList(ce.getMessage().replaceAll("\\t", "     ").replaceAll("\\r", "").split("\\n+")));
         } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
             Logger.getLogger(CommandManager.class.getCanonicalName()).log(Level.SEVERE, "Error!", ex);
             lines.add(ex.getClass().getName());
