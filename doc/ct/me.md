@@ -1,16 +1,16 @@
-beep
+me
 ====================
 
 Usage:
 --------------------
 ```
-beep 
+me [-u:User] [-m:String] 
 ```
 
 Help:
 --------------------
 ```
-Help for beep:
- - Usage: beep 
+Help for me:
+ - Usage: me [-u:User] [-m:String] 
 
 ```

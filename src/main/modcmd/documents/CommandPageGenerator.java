@@ -19,7 +19,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -31,10 +30,13 @@ import java.util.regex.Pattern;
  */
 public class CommandPageGenerator {
 
+    public static String INDEX_TEMPLATE = "modcmd/documents/templates/index_template.md";
+    public static String COMMAND_TEMPLATE = "modcmd/documents/templates/command_template.md";
+
     @Command("gendocs")
     public static String generateAllPages(
             @CommandParameter(name = "commandset", tag = "c", description = "Commandset to generate documentation for.", type = "String") String commandset,
-            @CommandParameter(name = "path", tag = "p", description = "The folder to output to.", type = "String", defaultValue = "documentation") String path
+            @CommandParameter(name = "path", tag = "p", description = "The folder to output to.", type = "String", defaultValue = "doc") String path
     ) {
 
         if (!CommandManager.hasCommandSet(commandset)) {
@@ -46,11 +48,20 @@ public class CommandPageGenerator {
 
         sb.append("\nDocumentation Output:\n");
 
-        for (CommandNode node : CommandManager.getCommandSet(commandset).getSubnodes().values()) {
-            sb.append(generatePage(node, path)).append('\n');
-        }
+        generateAllPages(CommandManager.getCommandSet(commandset), path, sb);
 
         return sb.toString();
+    }
+
+    private static void generateAllPages(CommandNode cmds, String path, StringBuilder traker) {
+        generatePage(cmds, path);
+        for (CommandNode node : cmds.getSubnodes().values()) {
+            if (node.getSubnodes().isEmpty()) {
+                traker.append(generatePage(node, path)).append('\n');
+            } else {
+                generateAllPages(node, path + "/" + node.identifier, traker);
+            }
+        }
     }
 
     public static String generatePage(CommandNode cmd, String path) {
@@ -58,14 +69,14 @@ public class CommandPageGenerator {
         URI templateURI;
 
         try {
-            templateURI = ClassLoader.getSystemClassLoader().getResource("modcmd/documents/templates/command_template.md").toURI();
+            templateURI = ClassLoader.getSystemClassLoader().getResource(cmd.getSubnodes().isEmpty() ? COMMAND_TEMPLATE : INDEX_TEMPLATE).toURI();
         } catch (URISyntaxException e) {
             return "Improper template filepath syntax.";
         } catch (NullPointerException e) {
             return "Bad reference to the templates folder.";
         }
 
-        Path documentPath = Paths.get(path, cmd.identifier.concat(".md"));
+        Path documentPath = Paths.get(path, cmd.getSubnodes().isEmpty() ? cmd.identifier.concat(".md") : "index.md");
 
         try {
             if (documentPath.getParent() != null) {
@@ -81,7 +92,7 @@ public class CommandPageGenerator {
             String line = template.readLine();
 
             while (line != null) {
-                documentWriter.append(format(line, cmd));
+                documentWriter.append(cmd.getSubnodes().isEmpty() ? formatCommand(line, cmd) : formatIndex(line, cmd));
                 documentWriter.newLine();
                 line = template.readLine();
             }
@@ -93,7 +104,7 @@ public class CommandPageGenerator {
         return "Command documentation for: " + cmd.identifier + " generated!";
     }
 
-    public static String format(String line, CommandNode cmd) {
+    public static String formatCommand(String line, CommandNode cmd) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -105,6 +116,26 @@ public class CommandPageGenerator {
         replacements.put("\\$\\{command_name\\}", cmd.identifier);
         replacements.put("\\$\\{command_usage\\}", cmd.getUsage());
         replacements.put("\\$\\{command_help\\}", sb.toString());
+
+        for (String pattern : replacements.keySet()) {
+            Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(line);
+            line = matcher.replaceAll(replacements.get(pattern));
+        }
+
+        return line;
+    }
+
+    public static String formatIndex(String line, CommandNode cmd) {
+
+        StringBuilder sb = new StringBuilder();
+
+        for (String e : cmd.getSubnodes().keySet()) {
+            sb.append(" - [").append(e).append("](").append(e).append(".md)\n");
+        }
+
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("\\$\\{command_name\\}", cmd.identifier);
+        replacements.put("\\$\\{command_list\\}", sb.toString());
 
         for (String pattern : replacements.keySet()) {
             Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(line);

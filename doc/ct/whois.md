@@ -1,16 +1,16 @@
-beep
+whois
 ====================
 
 Usage:
 --------------------
 ```
-beep 
+whois [-u:User] 
 ```
 
 Help:
 --------------------
 ```
-Help for beep:
- - Usage: beep 
+Help for whois:
+ - Usage: whois [-u:User] 
 
 ```

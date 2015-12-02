@@ -1,16 +1,16 @@
-beep
+message
 ====================
 
 Usage:
 --------------------
 ```
-beep 
+message -m:String 
 ```
 
 Help:
 --------------------
 ```
-Help for beep:
- - Usage: beep 
+Help for message:
+ - Usage: message -m:String 
 
 ```

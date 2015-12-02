@@ -1,16 +1,16 @@
-beep
+stars
 ====================
 
 Usage:
 --------------------
 ```
-beep 
+stars [-n:Integer] 
 ```
 
 Help:
 --------------------
 ```
-Help for beep:
- - Usage: beep 
+Help for stars:
+ - Usage: stars [-n:Integer] 
 
 ```

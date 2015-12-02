@@ -5,13 +5,12 @@ Usage:
 --------------------
 ```
 mapify -l:String 
-
 ```
 
 Help:
 --------------------
 ```
 Help for mapify:
- - No help to give.
+ - Usage: mapify -l:String 
 
 ```
