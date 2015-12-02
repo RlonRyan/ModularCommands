@@ -12,6 +12,7 @@ import modcmd.commands.CommandParameter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
@@ -112,15 +113,18 @@ public class CommandPageGenerator {
 
         StringBuilder sb = new StringBuilder();
 
-        for (String e : cmd.getHelp(new ArrayDeque<String>())) {
-            sb.append(e).append("\n");
+        for (Annotation anno : cmd.parameters) {
+            if (anno instanceof CommandParameter) {
+                CommandParameter param = (CommandParameter) anno;
+                sb.append(" - ").append(param.tag()).append(": ").append(param.description()).append("\n");
+            }
         }
 
         Map<String, String> replacements = new HashMap<>();
         replacements.put("\\$\\{command_name\\}", cmd.identifier);
         replacements.put("\\$\\{command_about\\}", cmd.command.about());
         replacements.put("\\$\\{command_usage\\}", cmd.getUsage());
-        replacements.put("\\$\\{command_help\\}", sb.toString());
+        replacements.put("\\$\\{command_parameters\\}", sb.toString());
         replacements.put("\\$\\{command_related\\}", String.format("[%1$s](index.md)", cmd.parent.identifier));
 
         for (String pattern : replacements.keySet()) {

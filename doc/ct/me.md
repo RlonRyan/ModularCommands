@@ -11,11 +11,10 @@ Usage:
 me -m:String 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for me:
- - Usage: me -m:String 
+ - m: The message to say.
 
 ```
 

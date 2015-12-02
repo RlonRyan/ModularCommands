@@ -11,11 +11,10 @@ Usage:
 message -m:String 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for message:
- - Usage: message -m:String 
+ - m: The message to print.
 
 ```
 

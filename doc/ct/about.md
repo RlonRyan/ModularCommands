@@ -11,11 +11,10 @@ Usage:
 about [-s:cmd] 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for about:
- - Usage: about [-s:cmd] 
+ - s: The command to get a description for.
 
 ```
 

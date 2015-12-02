@@ -11,11 +11,11 @@ Usage:
 gendocs -c:String [-p:String] 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for gendocs:
- - Usage: gendocs -c:String [-p:String] 
+ - c: Commandset to generate documentation for.
+ - p: The folder to output to.
 
 ```
 

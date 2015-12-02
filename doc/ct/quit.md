@@ -11,11 +11,11 @@ Usage:
 quit [-m:String] [-v:int] 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for quit:
- - Usage: quit [-m:String] [-v:int] 
+ - m: The reason for quitting.
+ - v: The quit value
 
 ```
 

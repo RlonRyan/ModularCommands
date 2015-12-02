@@ -11,11 +11,10 @@ Usage:
 suggest -l:String 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for suggest:
- - Usage: suggest -l:String 
+ - l: The line to complete.
 
 ```
 

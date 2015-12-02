@@ -11,11 +11,10 @@ Usage:
 mapify -l:String 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for mapify:
- - Usage: mapify -l:String 
+ - l: The line to mapify.
 
 ```
 

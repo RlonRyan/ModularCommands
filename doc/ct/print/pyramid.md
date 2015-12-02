@@ -11,11 +11,10 @@ Usage:
 pyramid -n:Integer 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for pyramid:
- - Usage: pyramid -n:Integer 
+ - n: The number of stars to print.
 
 ```
 

@@ -11,11 +11,10 @@ Usage:
 whoami [-u:User] 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for whoami:
- - Usage: whoami [-u:User] 
+ - u: The user to find information on.
 
 ```
 

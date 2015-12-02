@@ -11,11 +11,11 @@ Usage:
 repeat -n:Integer -c:String 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for repeat:
- - Usage: repeat -n:Integer -c:String 
+ - n: The number of times to loop.
+ - c: The command to execute.
 
 ```
 

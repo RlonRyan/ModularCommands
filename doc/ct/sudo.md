@@ -11,11 +11,11 @@ Usage:
 sudo [-u:String] -c:String 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for sudo:
- - Usage: sudo [-u:String] -c:String 
+ - u: The user to execute as.
+ - c: The command to execute.
 
 ```
 

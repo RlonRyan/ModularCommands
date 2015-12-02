@@ -29,10 +29,10 @@ public class CommandNode {
 
     public final CommandNode parent;
     public final Command command;
+    public final Annotation[] parameters;
 
     final HashMap<String, CommandNode> subNodes;
     final Method commandMethod;
-    final Annotation[] parameters;
 
     protected CommandNode(String identifier) {
         this(identifier, null, null);

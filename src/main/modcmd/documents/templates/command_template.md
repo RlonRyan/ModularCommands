@@ -11,10 +11,10 @@ Usage:
 ${Command_Usage}
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-${Command_Help}
+${Command_Parameters}
 ```
 
 Related:

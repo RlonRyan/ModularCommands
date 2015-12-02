@@ -11,11 +11,9 @@ Usage:
 beep 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for beep:
- - Usage: beep 
 
 ```
 

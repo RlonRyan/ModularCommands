@@ -11,11 +11,10 @@ Usage:
 stars -n:Integer 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for stars:
- - Usage: stars -n:Integer 
+ - n: The number of stars to print.
 
 ```
 

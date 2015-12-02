@@ -11,11 +11,10 @@ Usage:
 help [-s:String] 
 ```
 
-Help:
+Parameters:
 --------------------
 ```
-Help for help:
- - Usage: help [-s:String] 
+ - s: The subject to get help on.
 
 ```
 
