@@ -12,6 +12,8 @@ import modcmd.commands.CommandParameter;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.annotation.Annotation;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +21,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -71,16 +72,6 @@ public class CommandPageGenerator {
 
     public static String generatePage(CommandNode cmd, String path) {
 
-        URI templateURI;
-
-        try {
-            templateURI = ClassLoader.getSystemClassLoader().getResource(cmd.getSubnodes().isEmpty() ? COMMAND_TEMPLATE : INDEX_TEMPLATE).toURI();
-        } catch (URISyntaxException e) {
-            return "Improper template filepath syntax.";
-        } catch (NullPointerException e) {
-            return "Bad reference to the templates folder.";
-        }
-
         Path documentPath = Paths.get(path, cmd.getSubnodes().isEmpty() ? cmd.identifier.concat(".md") : "index.md");
 
         try {
@@ -91,7 +82,10 @@ public class CommandPageGenerator {
             return "Unable to create directory for writing documentation.";
         }
 
-        try (BufferedReader template = Files.newBufferedReader(Paths.get(templateURI));
+        try (BufferedReader template = new BufferedReader(
+                new InputStreamReader(
+                        ClassLoader.getSystemClassLoader().getResourceAsStream(cmd.getSubnodes().isEmpty() ? COMMAND_TEMPLATE : INDEX_TEMPLATE)
+                ));
                 BufferedWriter documentWriter = Files.newBufferedWriter(documentPath, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
 
             String line = template.readLine();
