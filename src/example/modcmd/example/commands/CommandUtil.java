@@ -123,6 +123,14 @@ public class CommandUtil {
     public static void whoami(@CommandParameter(tag = "u", name = "user", description = "The user to find information on.", type = "User", defaultValue = "%") Object user) {
         System.out.println(user.toString());
     }
+    
+    @Command(
+            name = "bool",
+            about = "Determines the value of a boolean."
+    )
+    public static void whoami(@CommandParameter(tag = "b", name = "boolean", description = "The boolean to evaluate.", type = "bool", defaultValue = "t") boolean bool) {
+        System.out.println("Value: " + bool);
+    }
 
     @Command(
             name = "me",

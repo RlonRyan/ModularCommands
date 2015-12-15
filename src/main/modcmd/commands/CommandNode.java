@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import modcmd.user.CommandUser;
 import static modcmd.commands.CommandManager.MARKER;
+import modcmd.suggestors.SuggestorManager;
 
 /**
  *
@@ -114,12 +115,24 @@ public class CommandNode {
         List<String> suggestions = new ArrayList<>();
 
         if (args.isEmpty()) {
+            // Misses 1 param commands...
             return suggestions;
         }
 
         String toComplete = args.pollLast();
         toComplete = (toComplete == null) ? "" : toComplete.toLowerCase();
-
+        
+        // Slow, but what other way is there to do it?
+        String lastTag = "";
+        for (String arg : args) {
+            if (arg.charAt(0) == MARKER) {
+                lastTag = arg;
+            }
+        }
+        if (!lastTag.isEmpty()) {
+            lastTag = lastTag.substring(1).toLowerCase();
+        }
+        
         for (String key : this.subNodes.keySet()) {
             if (toComplete.isEmpty() || key.startsWith(toComplete)) {
                 suggestions.add(key);
@@ -132,6 +145,9 @@ public class CommandNode {
                     CommandParameter cmdparam = (CommandParameter) param;
                     if (toComplete.isEmpty() || toComplete.charAt(0) == MARKER && cmdparam.tag().startsWith(toComplete.substring(1))) {
                         suggestions.add(MARKER + cmdparam.tag());
+                    }
+                    if (cmdparam.tag().equals(lastTag) && SuggestorManager.hasSuggestorFor(cmdparam.type())) {
+                        SuggestorManager.Suggest(lastTag, toComplete, suggestions);
                     }
                 }
             }
